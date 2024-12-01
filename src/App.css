@@ -1,0 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;300;400;500;600;700;800&display=swap');
+
+* {
+  font-family: 'Outfit', sans-serif;
+}
+
+.bg-site{
+  background: linear-gradient(to right, #0a1e68, #153795,#0a1e68);
+}
+.text-site{
+  color: linear-gradient(to right, #0a1e68, #153795,#0a1e68);
+}
+.custom-color{
+  color: #0a1e68;
+}
+/* Add this to your CSS file or a style tag */
+.scroll-hidden::-webkit-scrollbar {
+  display: none; /* For Chrome, Safari, and Opera */
+}
+
+.scroll-hidden {
+  -ms-overflow-style: none;  /* For Internet Explorer and Edge */
+  scrollbar-width: none;      /* For Firefox */
+}
