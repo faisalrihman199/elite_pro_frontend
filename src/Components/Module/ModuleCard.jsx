@@ -1,5 +1,5 @@
 import React from 'react'
-import { FaCalendarAlt, FaTasks } from 'react-icons/fa'
+import { FaCalendarAlt, FaEdit, FaTasks } from 'react-icons/fa'
 
 const ModuleCard = ({key, module}) => {
     const getProgressColor = (progress) => {
@@ -11,7 +11,8 @@ const ModuleCard = ({key, module}) => {
     return (
         <div key={key} className="mb-4 p-4 border rounded-lg bg-gray-50 w-full">
             <div className="flex flex-wrap justify-between items-center mb-4">
-                <h5 className="text-lg font-semibold text-gray-800">{module.name}</h5>
+                <h5 className="text-lg flex items-center font-semibold text-gray-800">{module.name} <FaEdit className='mx-2 cursor-pointer' /> </h5>
+
                 <div className="flex  items-center text-gray-600">
                     <FaTasks className="mr-2" />
                     <span>{module.assignedTo}</span>

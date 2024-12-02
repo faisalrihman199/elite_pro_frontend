@@ -35,7 +35,6 @@ function EmployeeForm() {
     .catch((err)=>{
       console.log("Error :", err);
       toast.error(err.response.data.message || "Error while Adding Employee");
-      
     })
     .finally(()=>{
       setLoading(false);
@@ -52,7 +51,7 @@ function EmployeeForm() {
   };
 
   return (
-    <section className="flex items-center justify-center min-h-screen bg-cover bg-center bg-gray-100"  >
+    <section className="flex items-center justify-center min-h-screen bg-cover bg-center rounded bg-gray-100"  >
       <div className="z-10 flex flex-col items-center justify-center px-6 py-2 mx-auto my-3 lg:py-0">
         <div className="w-full max-w-lg bg-white rounded-lg shadow-lg md:mt-0 xl:p-10" style={{ width: '800px', maxWidth: '90vw' }}>
           <div className="px-8 py-3">

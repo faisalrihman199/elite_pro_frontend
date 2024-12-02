@@ -3,6 +3,7 @@ import { FaUsers, FaCalendarAlt, FaTasks, FaClipboardList, FaArrowCircleLeft, Fa
 import { Progress } from 'reactstrap';
 import TeamCard from '../../../Components/Team/TeamCard';
 import TaskCard from '../../../Components/Task/TaskCard';
+import { MdOutlineAddTask } from 'react-icons/md';
 
 
 const OneProject = () => {
@@ -186,11 +187,14 @@ const OneProject = () => {
 
                 {/* Tasks */}
                 <div className="mb-6">
-                    <div className="flex justify-between">
-                    <h3 className="text-xl font-semibold text-gray-700 mb-4">Tasks</h3>
-                    <div>
-                        {currentIndex+1} / {project.tasks.length}
-                    </div>
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center">
+                            <h3 className="text-xl font-semibold text-gray-700 ">Tasks</h3>
+                            <MdOutlineAddTask size={20} className='custom-color mx-1 cursor-pointer' style={{ fontWeight: 'bold' }} />
+                        </div>
+                        <div>
+                            {currentIndex + 1} / {project.tasks.length}
+                        </div>
 
                     </div>
                     <div className="relative">

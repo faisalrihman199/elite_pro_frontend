@@ -22,3 +22,9 @@
   -ms-overflow-style: none;  /* For Internet Explorer and Edge */
   scrollbar-width: none;      /* For Firefox */
 }
+
+@media (max-width: 768px) {
+  .css-nsbw82-MuiChartsLegend-root {
+    display: none !important;
+  }
+}

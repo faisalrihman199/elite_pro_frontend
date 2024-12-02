@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { 
   FaBullhorn, 
   FaDesktop, 
@@ -7,7 +7,10 @@ import {
   FaLink, 
   FaTimesCircle, 
   FaUsers, 
-  FaSignOutAlt 
+  FaSignOutAlt, 
+  FaCogs,
+  FaUserCircle,
+  FaBell
 } from 'react-icons/fa';
 import SideIcon from "../../assets/Icons/sideIcon.svg"
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -16,11 +19,34 @@ import { VscFileSubmodule } from 'react-icons/vsc';
 import { GiProgression } from 'react-icons/gi';
 import { MdOutlineDashboardCustomize } from 'react-icons/md';
 import { BsMicrosoftTeams } from 'react-icons/bs';
+import { useAPI } from '../../Context/APIContext';
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation(); 
-  const [sidebardata, setSideBarData]=useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [unreadNotifications, setUnreadNotifications] = useState(1); // Example notification count
+    const dropdownRef = useRef(null);
+    const {getUser}=useAPI();
+    const user=getUser();
+    const onLogout = () => {
+        localStorage.removeItem('user')
+        navigate('/');
+      }
+    const toggleDropdown = () => setDropdownOpen((prev) => !prev);
+
+    const handleClickOutside = (event) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            setDropdownOpen(false);
+        }
+    };
+
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
@@ -44,7 +70,7 @@ const Sidebar = () => {
         `}
       </style>
 
-      <div className="flex md:justify-between items-center sm:hidden sm:fixed " style={{
+      <div className="flex justify-between items-center sm:hidden sm:bg-site fixed z-10 " style={{
         background: 'linear-gradient(to right, #0a1e68, #153795)',
         width:'100vw'
       }}>
@@ -67,10 +93,54 @@ const Sidebar = () => {
               d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"
             />
           </svg>
+          
         </button>
+        
+        <div>
         <Link to="/" className="flex items-center mx-2">
-          <img src={SideIcon} alt="" height={50} width={100} />
+          <span className="md:text-gray-700  font-medium text-white">{user?.name}</span>
         </Link>
+        </div>
+        <div className="flex items-center  space-x-6  px-2">
+                {/* Logged-in User's Name */}
+                
+
+                {/* Notification Icon */}
+                <div className="relative">
+                    <FaBell className="md:text-gray-600 w-6 h-6 cursor-pointer text-white" />
+                    {unreadNotifications > 0 && (
+                        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                            {unreadNotifications}
+                        </span>
+                    )}
+                </div>
+
+                {/* Profile Icon with Dropdown */}
+                <div className="relative" ref={dropdownRef}>
+                    <FaUserCircle
+                        className="md:text-gray-600 w-8 h-8 cursor-pointer text-white"
+                        onClick={toggleDropdown}
+                    />
+                    {dropdownOpen && (
+                        <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg rounded-lg">
+                            <ul className="py-2">
+                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
+                                    <FaCogs className="mr-2" /> Settings
+                                </li>
+                                {/* <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
+                                    <FaEnvelope className="mr-2" /> Messages
+                                </li> */}
+                                <li
+                                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center text-red-500"
+                                    onClick={onLogout}
+                                >
+                                    <FaSignOutAlt className="mr-2" /> Logout
+                                </li>
+                            </ul>
+                        </div>
+                    )}
+                </div>
+            </div>
         {/* <button
           className="inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
           onClick={handleLogout}

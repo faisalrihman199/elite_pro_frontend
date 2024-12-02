@@ -100,7 +100,7 @@ const ModulesDashboard = () => {
     return (
         <div className='p-8' ><div className="flex justify-between">
 
-            <h1 className='text-2xl font-semibold my-2'>Projects Dashboard</h1>
+            <h1 className='text-2xl font-semibold my-2'>Modules Dashboard</h1>
             <Link to='/dashboard/add_module' className=' bg-site focus:ring-4 focus:ring-4 focus:outline-none focus:ring-primary-300 focus:outline-none text-white font-medium rounded-lg text-sm px-5  text-center flex items-center' >
                 <MdOutlineAddTask size={25} style={{ fontWeight: 'bold' }} />
             </Link>

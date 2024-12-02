@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FaUsers, FaArrowRight } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { useAPI } from '../../Context/APIContext';
 
 const TeamCard = ({ team }) => {
-    // Generate list of employee names for the tooltip
-    const remainingEmployees = team.employees.slice(5);
+    const {getFilesPath}=useAPI();
+    const remainingEmployees = team?.employees?.length > 5 
+    ? team.employees.slice(5) 
+    : [];
     const navigate=useNavigate();
     const onShowMore=(team)=>{
         console.log("Show more this team :", team);
@@ -13,14 +16,14 @@ const TeamCard = ({ team }) => {
     return (
         <div className="max-w-md w-full bg-white border rounded-lg shadow-md p-6 flex flex-col items-center">
             {/* Team Name */}
-            <h3 className="text-2xl font-semibold text-gray-800 mb-2">{team.name}</h3>
+            <h3 className="text-2xl font-semibold text-gray-800 mb-2">{team?.name}</h3>
 
             {/* Employee Avatars */}
             <div className="flex -space-x-2 relative">
-                {team.employees.slice(0, 5).map((employee, index) => (
+                {team?.employees?.slice(0, 5).map((employee, index) => (
                     <div key={index} className="relative group">
                         <img
-                            src={employee.profilePicture || 'https://via.placeholder.com/50'}
+                            src={employee.image?getFilesPath(employee.image) :'https://via.placeholder.com/50'}
                             alt={employee.name}
                             className="w-10 h-10 rounded-full border-2 border-white shadow-sm"
                         />
@@ -50,7 +53,7 @@ const TeamCard = ({ team }) => {
             {/* Employee Count with Icon */}
             <div className="flex items-center text-gray-600 my-4">
                 <FaUsers className="text-site mr-2" size={20} />
-                <span>{team.employees.length} Employees</span>
+                <span>{team?.employees?.length} Employees</span>
             </div>
 
             {/* Show More Button */}

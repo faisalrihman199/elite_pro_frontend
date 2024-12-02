@@ -30,7 +30,7 @@ const Navbar = ({ userName }) => {
     }, []);
 
     return (
-        <nav className="sm:fixed top-0 left-0 right-0 md:bg-white sm:site-bg shadow-sm md:p-3 p-2 flex justify-between items-center z-10">
+        <nav className="md:fixed top-0 left-0 right-0 md:bg-white sm:site-bg shadow-sm md:p-3 p-2 flex justify-between items-center z-10">
             {/* Logo or App Name */}
             <div className="text-xl font-bold text-blue-600"></div>
 

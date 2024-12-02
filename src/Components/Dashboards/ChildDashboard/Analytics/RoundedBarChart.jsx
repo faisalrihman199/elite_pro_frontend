@@ -39,23 +39,39 @@ const RoundedRectangle = (props) => {
 };
 
 // Function to generate Y-axis ticks dynamically
-const generateYTicks = (data) => {
+const generateYTicks = (data = []) => {
+  if (!Array.isArray(data) || data.length === 0) {
+    // Return a default tick range if data is invalid or empty
+    return [0, 1, 2, 3, 4, 5];
+  }
+
   const values = data.map((item) => item.value);
   const minValue = Math.min(...values);
   const maxValue = Math.max(...values);
 
-  // Calculate the step based on the range of values
-  const range = maxValue - minValue;
-  const step = Math.ceil(range / 5); // Create 5 intervals for ticks
-  let ticks = [];
-
-  // Start from the minimum value and go up in steps
-  for (let i = 0; i <= 5; i++) {
-    ticks.push(minValue + step * i);
+  if (minValue === maxValue) {
+    const adjustedMin = Math.floor(minValue === 0 ? 0 : minValue - 1);
+    const adjustedMax = Math.ceil(maxValue + 1);
+    return [adjustedMin, (adjustedMin + adjustedMax) / 2, adjustedMax].map(Math.round);
   }
 
-  return ticks;
+  // Calculate the step size, ensuring it is an integer
+  const range = maxValue - minValue;
+  const step = Math.max(1, Math.ceil(range / 5)); // At least 1 to avoid small fractional steps
+
+  const ticks = [];
+  for (let i = 0; i <= 5; i++) {
+    ticks.push(Math.round(minValue + step * i));
+  }
+
+  // Ensure 0 is included if it's within the range
+  if (minValue < 0 && maxValue > 0 && !ticks.includes(0)) {
+    ticks.push(0);
+  }
+
+  return [...new Set(ticks)].sort((a, b) => a - b); // Deduplicate and sort ticks
 };
+
 
 export default function RoundedBarChart({ data }) {
   const yTicks = generateYTicks(data); // Automatically generate Y ticks

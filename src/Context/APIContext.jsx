@@ -9,7 +9,6 @@ const APIProvider = ({ children }) => {
   });
 
   const server = import.meta.env.VITE_APP_API_URL;
-  console.log("Server is :", server);
 
   useEffect(() => {
     if (user) {
@@ -33,6 +32,9 @@ const APIProvider = ({ children }) => {
       }
     };
   };
+  const getFilesPath=(path)=>{
+    return `${server.split("/api")[0]}/public/${path}`;
+  }
 
   const login = async (data) => {
     const response = await axios.post(`${server}/login`, data);
@@ -70,6 +72,10 @@ const APIProvider = ({ children }) => {
     const response = await axios.get(url, getConfig());
     return response.data;
   };
+  const employeeDashboard = async (period) => {
+    const response = await axios.get(`${server}/dashboard/employeeStats?period=${period}`, getConfig());
+    return response.data;
+  };
 
 
    //Team
@@ -78,6 +84,18 @@ const APIProvider = ({ children }) => {
     const response = await axios.post(`${server}/teams/create`, data, getConfig());
     return response.data;
   };
+  const teamsList=async (page, limit) => {
+    let url=`${server}/teams/all?page=${page}`;
+    url=limit?`${url}&limit=${limit}`:url;
+    const response = await axios.get(url, getConfig());
+    return response.data;
+  };
+  const getOneTeam=async (id) => {
+    let url=`${server}/teams/getOneTeam/${id}`;  
+    const response = await axios.get(url, getConfig());
+    return response.data;
+  };
+  
 
 
   //Main Dashboard
@@ -92,23 +110,48 @@ const APIProvider = ({ children }) => {
     const response = await axios.get(`${server}/dashboard/projectStats?period=${period}`, getConfig());
     return response.data;
   };
+  const addProject = async (data) => {
+    const response = await axios.post(`${server}/company/createProject`, data, getConfig());
+    return response.data;
+  };
 
+
+  //Tasks
+  const addTask = async (data) => {
+    const response = await axios.post(`${server}/company/createTask`, data, getConfig());
+    return response.data;
+  };
+
+  //Modules
+  const addModule = async (data) => {
+    console.log("Data is :", Object.fromEntries(data));
+    
+    const response = await axios.post(`${server}/company/addModule`, data, getConfig());
+    return response.data;
+  };
 
 
   const provider = {
 
 
     //Auth
-    login, signup, sendOtp, RegisterWithVerification,isAdmin, getUser,getConfig,verifyOtp,
+    login, signup, sendOtp, RegisterWithVerification,isAdmin, getUser,getConfig,verifyOtp,getFilesPath,
 
     //Employeees
-    addEmployee,employeesList,
+    addEmployee,employeesList,employeeDashboard,
 
     //Teams
-    addTeam,
+    addTeam,teamsList,getOneTeam,
 
     //Projects
-    projectsDashboard,
+    projectsDashboard,addProject,
+
+    //Tasks
+    addTask,
+
+
+    //Modules
+    addModule,
 
     //Main Dashboard
     mainDashboard,

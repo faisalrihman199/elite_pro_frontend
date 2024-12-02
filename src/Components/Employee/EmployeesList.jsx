@@ -1,10 +1,9 @@
 import React from 'react';
 import Avatar from "../../assets/Images/Dummy/Avatar.jpg"
+import { useAPI } from '../../Context/APIContext';
 
 const EmployeeList = ({ allEmployees, toggleContactInGroup, newGroup}) => {
-  let server=(import.meta.env.VITE_APP_API_URL).split("/api")[0];
-  
-  
+  const {getFilesPath}=useAPI();
   return (
     <div>
       <div>
@@ -16,7 +15,7 @@ const EmployeeList = ({ allEmployees, toggleContactInGroup, newGroup}) => {
             >
               <div className="flex items-center">
                 <img
-                  src={contact.profile_image?`${server}/public/${contact.profile_image}`:Avatar}
+                  src={contact.profile_image?`${getFilesPath(contact.profile_image)}`:Avatar}
                   alt="User Avatar"
                   className="mr-2 h-10 w-10 rounded-full object-cover"
                 />

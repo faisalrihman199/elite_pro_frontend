@@ -6,7 +6,7 @@ import { MdOutlineSwitchAccessShortcutAdd, } from 'react-icons/md';
 import { FaUserPlus } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
 import { BsMicrosoftTeams } from 'react-icons/bs';
-import { TbMedicalCrossOff } from 'react-icons/tb';
+import { TbMedicalCrossOff, TbUsersPlus } from 'react-icons/tb';
 import AddTeam from '../../../Components/Team/AddTeam';
 import TeamCard from '../../../Components/Team/TeamCard';
 
@@ -142,7 +142,7 @@ const TeamDashboard = () => {
                     className=' bg-site focus:ring-4 focus:ring-4 focus:outline-none focus:ring-primary-300 focus:outline-none text-white font-medium rounded-lg text-sm px-5 text-center flex items-center'
                     onClick={toggleModal}
                 >
-                    <FaUserPlus size={25} style={{ fontWeight: 'bold' }} />
+                    <TbUsersPlus size={25} style={{ fontWeight: 'bold' }} />
                 </button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-4">
