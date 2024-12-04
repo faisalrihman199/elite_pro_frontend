@@ -17,7 +17,8 @@ const EmployeesDashboard = () => {
     const [allEmployees, setEmployees]=useState([]);
     const [data, setData] = useState(null);
     const [page,setPage]=useState(1);
-    const [loading, setLoading] = useState(0);
+    const [loading, setLoading] = useState(1);
+
     useEffect(() => {
         setLoading(1)
         employeeDashboard(selectedOption)
@@ -32,7 +33,11 @@ const EmployeesDashboard = () => {
             .finally(() => {
                 setLoading(0);
             })
-    }, [selectedOption])
+    }, [selectedOption]);
+    const filteredEmployees = allEmployees?.filter(employee => 
+        employee.firstName.toLowerCase().includes(searchValue.toLowerCase()) || 
+        employee.lastName.toLowerCase().includes(searchValue.toLowerCase())
+    );    
     useEffect(()=>{
         setLoading(2);
         employeesList(page)
@@ -46,127 +51,8 @@ const EmployeesDashboard = () => {
         .finally(()=>{
             setLoading(0);
         })
-    },[page])
+    },[page])    
 
-    const total = [
-        { name: "Jan", value: 450 },
-        { name: "Feb", value: 1200 },
-        { name: "Mar", value: 800 },
-        { name: "Apr", value: 1500 },
-        { name: "May", value: 670 },
-        { name: "Jun", value: 1900 },
-        { name: "Jul", value: 360 },
-        { name: "Aug", value: 1420 },
-        { name: "Sep", value: 720 },
-        { name: "Oct", value: 1750 },
-        { name: "Nov", value: 890 },
-        { name: "Dec", value: 540 },
-    ];
-
-    const working = [
-        { name: "Jan", value: 1320 },
-        { name: "Feb", value: 780 },
-        { name: "Mar", value: 640 },
-        { name: "Apr", value: 1150 },
-        { name: "May", value: 1420 },
-        { name: "Jun", value: 430 },
-        { name: "Jul", value: 1990 },
-        { name: "Aug", value: 1530 },
-        { name: "Sep", value: 930 },
-        { name: "Oct", value: 1370 },
-        { name: "Nov", value: 620 },
-        { name: "Dec", value: 820 },
-    ];
-
-    const free = [
-        { name: "Jan", value: 720 },
-        { name: "Feb", value: 1360 },
-        { name: "Mar", value: 420 },
-        { name: "Apr", value: 1520 },
-        { name: "May", value: 1890 },
-        { name: "Jun", value: 380 },
-        { name: "Jul", value: 1070 },
-        { name: "Aug", value: 1240 },
-        { name: "Sep", value: 460 },
-        { name: "Oct", value: 890 },
-        { name: "Nov", value: 1940 },
-        { name: "Dec", value: 1560 },
-    ];
-    const employees = [
-        {
-            id: 1,
-            name: 'John Doe',
-            email: 'johndoe@example.com',
-            department: 'Engineering',
-            designation: 'Software Engineer',
-            profilePicture: 'https://randomuser.me/api/portraits/men/1.jpg',
-        },
-        {
-            id: 2,
-            name: 'Jane Smith',
-            email: 'janesmith@example.com',
-            department: 'Marketing',
-            designation: 'Marketing Manager',
-            profilePicture: 'https://randomuser.me/api/portraits/women/2.jpg',
-        },
-        {
-            id: 3,
-            name: 'Samuel Green',
-            email: 'samuelgreen@example.com',
-            department: 'Human Resources',
-            designation: 'HR Manager',
-            profilePicture: 'https://randomuser.me/api/portraits/men/3.jpg',
-        },
-        {
-            id: 4,
-            name: 'Emily Johnson',
-            email: 'emilyjohnson@example.com',
-            department: 'Finance',
-            designation: 'Financial Analyst',
-            profilePicture: 'https://randomuser.me/api/portraits/women/4.jpg',
-        },
-        {
-            id: 5,
-            name: 'Michael Brown',
-            email: 'michaelbrown@example.com',
-            department: 'IT',
-            designation: 'System Administrator',
-            profilePicture: 'https://randomuser.me/api/portraits/men/5.jpg',
-        },
-        {
-            id: 6,
-            name: 'Sophia Wilson',
-            email: 'sophiawilson@example.com',
-            department: 'Design',
-            designation: 'UI/UX Designer',
-            profilePicture: 'https://randomuser.me/api/portraits/women/6.jpg',
-        },
-        {
-            id: 7,
-            name: 'David Lee',
-            email: 'davidlee@example.com',
-            department: 'Operations',
-            designation: 'Operations Manager',
-            profilePicture: 'https://randomuser.me/api/portraits/men/7.jpg',
-        },
-        {
-            id: 8,
-            name: 'Olivia Martinez',
-            email: 'oliviamartinez@example.com',
-            department: 'Sales',
-            designation: 'Sales Executive',
-            profilePicture: 'https://randomuser.me/api/portraits/women/8.jpg',
-        },
-        {
-            id: 9,
-            name: 'James Taylor',
-            email: 'jamestaylor@example.com',
-            department: 'Legal',
-            designation: 'Legal Advisor',
-            profilePicture: 'https://randomuser.me/api/portraits/men/9.jpg',
-        },
-
-    ];
     const handleViewDetails = (employee) => {
         console.log("Show Details of employee :", employee);
 
@@ -174,7 +60,7 @@ const EmployeesDashboard = () => {
 
     return (
         <div className="p-8">
-            { loading===1?
+            { loading===1 ?
             <LoadingSkeleton />
             :
             <div>
@@ -277,7 +163,7 @@ const EmployeesDashboard = () => {
             :
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
-                {   allEmployees.map((employee) => (
+                {  filteredEmployees.map((employee) => (
                     <EmployeeCard
                         key={employee.id}
                         employee={employee}

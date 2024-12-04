@@ -27,14 +27,14 @@ const TaskCard = ({ key, task }) => {
                 <h4 className="text-lg flex items-center font-semibold text-gray-800">{task.name} <FaEdit className='mx-2 cursor-pointer' /> </h4>
                 <div className="flex items-center text-gray-600">
                     <FaUsers className="mr-2" />
-                    <span>{task.assignedTeam}</span>
+                    <span>{task.Teams[0].name}</span>
                 </div>
             </div>
 
             {/* Task Dates */}
             <div className="text-gray-600 mb-4 flex items-center flex-wrap">
                 <FaCalendarAlt className="mr-2" />
-                <span>{new Date(task.start).toLocaleDateString()} - {new Date(task.end).toLocaleDateString()}</span>
+                <span>{new Date(task?.startDate).toLocaleDateString()} - {new Date(task?.endDate).toLocaleDateString()}</span>
             </div>
 
             <div className="w-full bg-gray-200 rounded-full dark:bg-gray-400">

@@ -16,14 +16,16 @@ const ProjectsDashboard = () => {
     const [selectedOption, setSelectedOption] = useState('all');
     const [searchValue, setSearchValue] = useState("");
     const [change, setChange] = useState(false);
-    const headNames = ['Sr No', 'Project Title', 'Deadline ', 'Action'];
+    const headNames = ['Sr No', 'Project Title','Budget', 'Action '];
     const navigate = useNavigate();
-    const { mainDashboard } = useAPI();
+    const { projectsDashboard,allProjects } = useAPI();
     const [data, setData] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [tableProject, setTableProject]=useState([])
+    const [loading, setLoading] = useState(0);
+    const [page,setPage]=useState(1);
     useEffect(() => {
-        setLoading(true)
-        mainDashboard(selectedOption)
+        setLoading(1)
+        projectsDashboard(selectedOption)
             .then((res) => {
                 console.log("Main Dashbaord Data is :", res);
                 setData(res.data)
@@ -33,7 +35,7 @@ const ProjectsDashboard = () => {
 
             })
             .finally(() => {
-                setLoading(false);
+                setLoading(0);
             })
     }, [selectedOption])
 
@@ -43,9 +45,6 @@ const ProjectsDashboard = () => {
     }
     const handleDelete = (id) => {
         console.log("Delete this project :", id);
-
-
-
     }
     const projects = [
         {
@@ -99,32 +98,27 @@ const ProjectsDashboard = () => {
             "deadline": "2024-12-07"
         }
     ];
+    useEffect(()=>{
+        setLoading(2)
+        allProjects(page)
+        .then((res)=>{
+            setTableProject(res.data.projects) ;
+         })
+        .catch((err)=>{
+            console.log("Error :", err);
+            
+        })
+        .finally(()=>{
+            setLoading(0)
+        })
+    },[page])
 
-
-    const total = [
-        { name: "Jan", value: 450 },
-        { name: "Feb", value: 1200 },
-        { name: "Mar", value: 800 },
-        { name: "Apr", value: 1500 },
-        { name: "May", value: 670 },
-        { name: "Jun", value: 1900 },
-        { name: "Jul", value: 360 },
-        { name: "Aug", value: 1420 },
-        { name: "Sep", value: 720 },
-        { name: "Oct", value: 1750 },
-        { name: "Nov", value: 890 },
-        { name: "Dec", value: 540 },
-    ];
-    const chartData = [
-        { label: "Pending Projects", value: 50 },
-        { label: "Running Projects", value: 200 },
-        { label: "Completed Projects", value: 220 },
-    ];
+    
 
     return (
         <div className="p-8">
             {
-                loading?
+                loading===1?
                 <LoadingSkeleton />
                 :
                 data?
@@ -142,7 +136,7 @@ const ProjectsDashboard = () => {
                                 icon: GoProject,
                                 bgColor: '#0428f28f',
                                 heading: 'Total Project',
-                                para: 300
+                                para: data?.TotalProjects
                             }}
                         />
                         <RegularCard
@@ -151,7 +145,7 @@ const ProjectsDashboard = () => {
 
                                 bgColor: '#2ca907a8',
                                 heading: 'Completed',
-                                para: 140
+                                para: data?.TotalCompletedProjects
                             }}
                         />
                         <RegularCard
@@ -159,7 +153,7 @@ const ProjectsDashboard = () => {
                                 icon: GiProcessor,
                                 bgColor: '#ed6724',
                                 heading: 'Active',
-                                para: 160
+                                para: data?.TotalActiveProjects
                             }}
                         />
                     </div>
@@ -185,13 +179,13 @@ const ProjectsDashboard = () => {
                                 <h2 className='text-lg ms-3 font-semibold'>
                                     All Projects
                                 </h2>
-                                <RoundedBarChart data={total} />
+                                <RoundedBarChart data={data?.total} />
                             </div>
                             <div className="p-4 ">
                                 <h2 className='text-lg ms-3 font-semibold'>
                                     All Stats
                                 </h2>
-                                <SecondPieChart data={chartData} />
+                                <SecondPieChart data={data?.chartData} />
                             </div>
 
                         </div>
@@ -216,7 +210,7 @@ const ProjectsDashboard = () => {
                         </div>
                     </div>
                     <div className="my-1">
-                        <TableView rows={projects} headNames={headNames} handleDelete={handleDelete} handleEdit={handleEdit} />
+                        <TableView rows={tableProject} headNames={headNames} handleDelete={handleDelete} handleEdit={handleEdit} />
                     </div>
                 </div>
                 :

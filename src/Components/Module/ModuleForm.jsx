@@ -15,29 +15,59 @@ function ModuleForm() {
   console.log("Received Data :", data);
 
   const [file, setFile] = useState(null);
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm();
+  const { register, handleSubmit,setValue, reset, watch, formState: { errors } } = useForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(0);
   const [teamId, setTeamId] = useState(data?.teamId || null);
   const [employees, setEmployees] = useState([]);
   const [task, setTask] = useState(data?.task || null)
-  const { getOneTeam, addModule } = useAPI();
+  const { getOneTeam, addModule,oneModule } = useAPI();
+  const [prev,setPrev]=useState({})
+  const moduleId=2;
   const selectedEmployee = employees?.find(employee => employee?.id.toString() === watch('employeeId'));
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
   };
+  useEffect(() => {
+    if (moduleId) {
+      oneModule(moduleId)
+        .then((res) => {
+          console.log("Module Response:", res);
+          const startDate = res.data.startDate ? new Date(res.data.startDate).toISOString().split('T')[0] : '';
+          const endDate = res.data.endDate ? new Date(res.data.endDate).toISOString().split('T')[0] : '';
+          if (res?.data) {
+            // Use setValue to set the form values programmatically
+            setValue('name', res.data.name || '');
+            setValue('description', res.data.description || '');
+            setValue('startDate', startDate);
+            setValue('endDate', endDate);
+            setEmployees(res.data.task.Teams[0].employees || []);
+            setValue('employeeId', res?.data.employees[0].id);
+            setValue('file', res.data.file || null);
+            
+          }
+        })
+        .catch((err) => {
+          console.error("Error fetching module:", err);
+        });
+    }
+  }, []);
   const onSubmit = (data) => {
-    data.taskId = task.id;
+    if(!moduleId){
+      data.taskId = task.id;
+    }
     let formData = new FormData();
-    data.file = data.file[0];
+    if(data.file){
+      data.file = data.file[0];
+    }
     for (let key in data) {
       if (data.hasOwnProperty(key)) {
         formData.append(key, data[key]);
       }
     }
     setLoading(2);
-    addModule(formData)
+    addModule(formData, moduleId)
       .then((res) => {
         if (res.success) {
           toast.success(res.message);
@@ -58,18 +88,20 @@ function ModuleForm() {
 
 
   useEffect(() => {
-    setLoading(1);
-    getOneTeam(teamId)
-      .then((res) => {
-        console.log("Team :", res);
-        setEmployees(res.data.employees || []);
-      })
-      .catch((err) => {
-        console.log("Error :", err);
-      })
-      .finally(() => {
-        setLoading(0);
-      })
+    if(teamId){
+      setLoading(1);
+      getOneTeam(teamId)
+        .then((res) => {
+          console.log("Team :", res);
+          setEmployees(res.data.employees || []);
+        })
+        .catch((err) => {
+          console.log("Error :", err);
+        })
+        .finally(() => {
+          setLoading(0);
+        })
+    }
   }, [])
 
 
@@ -78,7 +110,15 @@ function ModuleForm() {
       <div className="z-9 flex flex-col items-center justify-center px-6 py-2 mx-auto my-3 lg:py-0">
         <div className="w-full max-w-lg bg-white rounded-lg shadow-lg md:mt-0 xl:p-10" style={{ width: '800px', maxWidth: '90vw' }}>
           <div className="px-8 py-3">
-            <h1 className="text-2xl font-bold tracking-tight my-4 text-gray-800">Add New Module | {task?.name}</h1>
+            <h1 className="text-2xl font-bold tracking-tight my-4 text-gray-800">
+              {
+                moduleId?
+                "Update Module Data":
+                `Add New Module | ${task?.name}`
+
+              }
+              
+              </h1>
             <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
 
               {/* Module Name and Module Number */}
@@ -170,14 +210,14 @@ function ModuleForm() {
                 <input
                   type="file"
                   className="bg-gray-100 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-3"
-                  {...register('file', { required: 'File is required' })}
+                  {...register('file', !moduleId && { required: 'File is required' })}
                 />
                 {errors.file && <p className="text-sm text-red-500">{errors.file.message}</p>}
               </div>
 
               <div className="flex">
 
-                <div className="md:w-1/2 sm:w-full md:pe-2" >
+                <div className={`${!moduleId?'md:w-1/2':'w-full'} sm:w-full md:pe-2`} >
                   <button
                     type="submit"
                     className=" bg-site w-full focus:ring-4 text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center"
@@ -185,28 +225,37 @@ function ModuleForm() {
                     {
                       loading === 2 ?
                         <SyncLoader color="white" /> :
+                        moduleId?
+                        'Update Module':
                         "Add Module"
                     }
 
                   </button>
 
                 </div>
-                <div className="md:w-1/2 sm:w-full md:ps-2" >
-                  <p
-                    onClick={() => { navigate("/dashboard/add_task") }}
-                    className="cursor-pointer bg-site w-full focus:ring-4 text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                  >
-                    Next Task
-                  </p>
+                {
+                  !moduleId &&
+                    <div className="md:w-1/2 sm:w-full md:ps-2" >
+                      <p
+                        onClick={() => { navigate("/dashboard/add_task") }}
+                        className="cursor-pointer bg-site w-full focus:ring-4 text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                      >
+                        Next Task
+                      </p>
 
-                </div>
+                    </div>
+                }
               </div>
-              <p
-                onClick={() => { navigate('/dashboard/add_module') }}
-                className="cursor-pointer my-2 bg-site w-full focus:ring-4 text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-              >
-                Finish Project Assignment
-              </p>
+              {
+                !moduleId &&
+
+                <p
+                  onClick={() => { navigate('/dashboard/add_module') }}
+                  className="cursor-pointer my-2 bg-site w-full focus:ring-4 text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                >
+                  Finish Project Assignment
+                </p>
+              }
 
             </form>
           </div>

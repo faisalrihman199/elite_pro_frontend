@@ -177,7 +177,7 @@ const OneTeam = () => {
                     data={{
                         icon: GoProject,
                         bgColor: '#0428f28f',
-                        heading: 'Total Projects',
+                        heading: 'Total Tasks',
                         para: 3000
                     }}
                 />
@@ -185,7 +185,7 @@ const OneTeam = () => {
                     data={{
                         icon: MdOutlineWorkHistory,
                         bgColor: '#2ca907a8',
-                        heading: 'Running Projects',
+                        heading: 'Running Tasks',
                         para: 2560
                     }}
                 />

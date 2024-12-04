@@ -5,6 +5,7 @@ const APIContext = createContext();
 const APIProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("user");
+    
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
@@ -38,6 +39,7 @@ const APIProvider = ({ children }) => {
 
   const login = async (data) => {
     const response = await axios.post(`${server}/login`, data);
+    setUser(response?.data?.data);
     return response.data;
   };
 
@@ -76,9 +78,18 @@ const APIProvider = ({ children }) => {
     const response = await axios.get(`${server}/dashboard/employeeStats?period=${period}`, getConfig());
     return response.data;
   };
+  const OneEmployee=async (id) => {
+    let url=`${server}/employee/getInfo${id?`?employeeId=${id}`:''}`;  
+    const response = await axios.get(url, getConfig());
+    return response.data;
+  };
 
 
    //Team
+   const teamDashboard = async (period) => {
+    const response = await axios.get(`${server}/dashboard/teamStats?period=${period}`, getConfig());
+    return response.data;
+  };
    const addTeam = async (data) => {
     console.log("Payload being sent:", data); // Debugging log
     const response = await axios.post(`${server}/teams/create`, data, getConfig());
@@ -114,21 +125,55 @@ const APIProvider = ({ children }) => {
     const response = await axios.post(`${server}/company/createProject`, data, getConfig());
     return response.data;
   };
+  const oneProject=async (id) => {
+    const response = await axios.get(`${server}/company/getOneProject?projectId=${id}`, getConfig());
+    return response.data;
+  };
+  const allProjects=async (page) => {
+    const response = await axios.get(`${server}/company/getProjects?page=${page}`, getConfig());
+    return response.data;
+  };
+
 
 
   //Tasks
-  const addTask = async (data) => {
-    const response = await axios.post(`${server}/company/createTask`, data, getConfig());
+  const addTask = async (data, taskId) => {
+    const response = await axios.post(`${server}/company/createTask${taskId?`?id=${taskId}`:''}`, data, getConfig());
+    return response.data;
+  };
+  const tasksDashboard = async (period) => {
+    const response = await axios.get(`${server}/dashboard/taskStats?period=${period}`, getConfig());
+    return response.data;
+  };
+  const allTasks=async (page) => {
+    const response = await axios.get(`${server}/company/getAllTasks?page=${page}`, getConfig());
+    return response.data;
+  };
+  const oneTask=async (id) => {
+    const response = await axios.get(`${server}/company/getOneTask?taskId=${id}`, getConfig());
     return response.data;
   };
 
   //Modules
-  const addModule = async (data) => {
+  const addModule = async (data,id) => {
     console.log("Data is :", Object.fromEntries(data));
     
-    const response = await axios.post(`${server}/company/addModule`, data, getConfig());
+    const response = await axios.post(`${server}/company/createModule${id?`?id=${id}`:''}`, data, getConfig());
     return response.data;
   };
+  const modulesDashboard = async (period) => {
+    const response = await axios.get(`${server}/dashboard/moduleStats?period=${period}`, getConfig());
+    return response.data;
+  };
+  const allModules=async (page, id) => {
+    const response = await axios.get(`${server}/company/getAllModules?page=${page}${id?`&employeeId=${id}`:''}`, getConfig());
+    return response.data;
+  };
+  const oneModule=async (id) => {
+    const response = await axios.get(`${server}/company/getOneModule?id=${id}`, getConfig());
+    return response.data;
+  };
+
 
 
   const provider = {
@@ -138,20 +183,20 @@ const APIProvider = ({ children }) => {
     login, signup, sendOtp, RegisterWithVerification,isAdmin, getUser,getConfig,verifyOtp,getFilesPath,
 
     //Employeees
-    addEmployee,employeesList,employeeDashboard,
+    addEmployee,employeesList,employeeDashboard,OneEmployee,
 
     //Teams
-    addTeam,teamsList,getOneTeam,
+    addTeam,teamsList,getOneTeam,teamDashboard,
 
     //Projects
-    projectsDashboard,addProject,
+    projectsDashboard,addProject,oneProject,allProjects,
 
     //Tasks
-    addTask,
+    addTask,tasksDashboard,allTasks,oneTask,
 
 
     //Modules
-    addModule,
+    addModule,modulesDashboard,allModules,oneModule,
 
     //Main Dashboard
     mainDashboard,

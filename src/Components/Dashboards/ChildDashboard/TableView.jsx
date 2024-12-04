@@ -25,10 +25,10 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({}));
 
-export default function CustomizedTables({rows, headNames, handleDelete, handleEdit}) {
-  
+export default function CustomizedTables({ rows, headNames, handleDelete, handleEdit }) {
+
   return (
-    <TableContainer component={Paper} className='p-4' style={{boxShadow:'none'}}>
+    <TableContainer component={Paper} className='p-4' style={{ boxShadow: 'none' }}>
       <Table
         sx={{
           minWidth: 700,
@@ -47,27 +47,29 @@ export default function CustomizedTables({rows, headNames, handleDelete, handleE
         </TableHead>
 
         <TableBody>
-  {rows.map((row, index) => (
-    <StyledTableRow key={index}>
-      {/* Accessing values dynamically based on keys */}
-      <StyledTableCell  className='font-light'>{index+1}</StyledTableCell>
-      <StyledTableCell  className='font-light'>{row[Object.keys(row)[1]]}</StyledTableCell>
-      <StyledTableCell className='font-light'>{row[Object.keys(row)[2]]}</StyledTableCell>
-      <StyledTableCell  className='font-light'>
-        <FontAwesomeIcon 
-          icon={faEdit} 
-          className="text-blue-500 cursor-pointer mr-2" 
-          onClick={() => handleEdit(row.id)} // Log the ID when edit is clicked
-        />
-        <FontAwesomeIcon 
-          icon={faTrash} 
-          className="text-red-500 cursor-pointer" 
-          onClick={() => handleDelete(row.id)} // Log the ID when delete is clicked
-        />
-      </StyledTableCell>
-    </StyledTableRow>
-  ))}
-</TableBody>
+          {rows.map((row, index) => (
+            <StyledTableRow key={index}>
+              {/* Accessing values dynamically based on keys */}
+              <StyledTableCell className='font-light'>{index + 1}</StyledTableCell>
+              <StyledTableCell className='font-light'>{row[Object.keys(row)[1]]}</StyledTableCell>
+              <StyledTableCell className="font-light">
+                {new Date(row[Object.keys(row)[2]]).toLocaleDateString()}
+              </StyledTableCell>
+              <StyledTableCell className='font-light'>
+                <FontAwesomeIcon
+                  icon={faEdit}
+                  className="text-blue-500 cursor-pointer mr-2"
+                  onClick={() => handleEdit(row.id)} // Log the ID when edit is clicked
+                />
+                <FontAwesomeIcon
+                  icon={faTrash}
+                  className="text-red-500 cursor-pointer"
+                  onClick={() => handleDelete(row.id)} // Log the ID when delete is clicked
+                />
+              </StyledTableCell>
+            </StyledTableRow>
+          ))}
+        </TableBody>
 
       </Table>
     </TableContainer>

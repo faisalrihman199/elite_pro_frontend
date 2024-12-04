@@ -10,19 +10,47 @@ import { toast } from "react-toastify";
 
 function TaskForm() { 
   
-  const { register, handleSubmit, getValues, watch,reset, formState: { errors } } = useForm();
+  const { register, handleSubmit,setValue, getValues, watch,reset, formState: { errors } } = useForm();
   const [loading, setLoading] = useState(0);
-  const { teamsList, addTask } = useAPI();
+  const { teamsList, addTask,oneTask } = useAPI();
   const [teams, setTeams] = useState([]);
   const [projectId, setProjectId] = useState(sessionStorage.getItem('addingProject') || null)
   const selectedTeam = teams?.find(team => team?.id.toString() === watch('teamId'));
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate=useNavigate();
+  const [prevData,setPrevData]=useState({})
+  const taskId=17;
+  
+  useEffect(() => {
+    oneTask(taskId)
+      .then((res) => {
+        console.log("Response :", res);
+        const task = res?.data?.task;
+  
+        // Populate form fields with task data
+        setValue('name', task.name || '');
+        setValue('description', task.description || '');
+        setValue('status', task.status || '');
+        setValue('startDate', task.startDate ? new Date(task.startDate).toISOString().substring(0, 10) : '');
+        setValue('endDate', task.endDate ? new Date(task.endDate).toISOString().substring(0, 10) : '');
+        setValue('teamId', task.Teams?.[0]?.id.toString() || '');
+  
+        // If needed, set other fields like projectId or progress
+        setPrevData(task); // Store original task data for comparison if required
+      })
+      .catch((err) => {
+        console.log("Error :", err);
+      });
+  }, []);
+  
+
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
   };
   const onSubmit = (data) => {
-    data.projectId = projectId;
+    if(!taskId){
+      data.projectId = projectId;
+    }
 
     let formData = new FormData();
     data.file = data.file[0];
@@ -32,7 +60,7 @@ function TaskForm() {
       }
     }
     setLoading(2);
-    addTask(formData)
+    addTask(formData,taskId)
       .then((res) => {
         if (res.success) {
           toast.success(res.message);
@@ -82,7 +110,14 @@ function TaskForm() {
       <div className="z-9 flex flex-col items-center justify-center px-6 py-2 mx-auto my-3 lg:py-0">
         <div className="w-full max-w-lg bg-white rounded-lg shadow-lg md:mt-0 xl:p-10" style={{ width: '800px', maxWidth: '90vw' }}>
           <div className="px-8 py-3">
-            <h1 className="text-2xl font-bold tracking-tight text-gray-800">Add New Task</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-gray-800">
+              {
+                taskId?
+                "Update Task Data":
+                'Add New Task'
+              }
+              
+              </h1>
             <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
 
               {/* Name and Team Name */}
@@ -171,18 +206,18 @@ function TaskForm() {
 
               {/* File Upload */}
               <div>
-                <label className="block mb-2 text-sm font-medium text-gray-800">Requirement File</label>
+                <label className="block mb-2 text-sm font-medium text-gray-800">Requirement File (.txt, .pdf, .doc)</label>
                 <input
                   type="file"
                   className="bg-gray-100 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-3"
-                  {...register('file', { required: 'File is required' })}
+                  {...register('file', !taskId && { required: 'File is required' })}
                 />
                 {errors.file && <p className="text-sm text-red-500">{errors.file.message}</p>}
               </div>
 
               <div className="flex flex-wrap">
 
-                <div className="md:w-1/2 sm:w-full md:pe-2" >
+                <div className={`${taskId}?'w-full':'md:w-1/2 sm:w-full md:pe-2`} >
                   <button
                     type="submit"
                     className=" bg-site w-full my-2 focus:ring-4 text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center"
@@ -190,21 +225,26 @@ function TaskForm() {
                     {
                   loading===2 ?
                     <SyncLoader color="white" /> :
+                    taskId?
+                    'Update Task' :
                     "Add Task"
                 }
                     
                   </button>
 
                 </div>
-                <div className="md:w-1/2 sm:w-full md:ps-2" >
-                  <p
-                    onClick={()=>{navigate('/dashboard/add_module')}}
-                    className="cursor-pointer my-2 bg-site w-full focus:ring-4 text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                  >
-                    Finish Project Assignment
-                  </p>
+                {
+                  !taskId &&
+                  <div className="md:w-1/2 sm:w-full md:ps-2" >
+                    <p
+                      onClick={()=>{navigate('/dashboard/add_module')}}
+                      className="cursor-pointer my-2 bg-site w-full focus:ring-4 text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                    >
+                      Finish Project Assignment
+                    </p>
 
-                </div>
+                  </div>
+                }
               </div>
             </form>
           </div>

@@ -1,12 +1,36 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaUsers, FaCalendarAlt, FaTasks, FaClipboardList, FaArrowCircleLeft, FaArrowCircleRight } from 'react-icons/fa';
 import { Progress } from 'reactstrap';
 import TeamCard from '../../../Components/Team/TeamCard';
 import TaskCard from '../../../Components/Task/TaskCard';
 import { MdOutlineAddTask } from 'react-icons/md';
+import { useAPI } from '../../../Context/APIContext';
+import LoadingSkeleton from '../../../Components/Dashboards/ChildDashboard/LoadingSkeleton';
 
 
 const OneProject = () => {
+    const projectId=10;
+    const {oneProject}=useAPI();
+    const [loading,setLoading]=useState(1);
+    const [projectData,setProjectData]=useState({});
+    const [tasks, setTasks]=useState([]);
+    const [teams,setTeams]=useState([]);
+    useEffect(()=>{
+        setLoading(1);
+        oneProject(projectId)
+        .then((res)=>{
+            setProjectData(res?.data?.project);
+            setTasks(res?.data?.project?.tasks);
+            setTeams(res?.data?.project?.teams );
+        })
+        .catch((err)=>{
+            console.log("Error :", err);
+            
+        })
+        .finally(()=>{
+            setLoading(0);
+        })
+    },[])
     const project = {
         name: 'Website Redesign',
         start: '2024-01-01',
@@ -160,18 +184,23 @@ const OneProject = () => {
 
     return (
         <div className="p-8  min-h-screen">
+            {
+                loading===1?
+                <LoadingSkeleton />
+                :
+                projectData?
             <div className=" p-6 rounded-lg ">
                 {/* Project Header */}
                 <div className="flex flex-wrap justify-between items-center mb-6">
-                    <h2 className="text-3xl font-semibold text-gray-800">{project.name}</h2>
+                    <h2 className="text-3xl font-semibold text-gray-800">{projectData?.name}</h2>
                     <div className="flex items-center space-x-6">
                         <div className="flex items-center text-gray-600">
                             <FaCalendarAlt className="mr-2 text-xl" />
-                            <span>{new Date(project.start).toLocaleDateString()} - {new Date(project.deadline).toLocaleDateString()}</span>
+                            <span>{new Date(projectData?.startDate).toLocaleDateString()} - {new Date(projectData?.endDate).toLocaleDateString()}</span>
                         </div>
                         <div className="flex items-center text-gray-600">
                             <FaUsers className="mr-2 text-xl" />
-                            <span>{project.teams.length} Teams</span>
+                            <span>{teams.length} Teams</span>
                         </div>
                     </div>
                 </div>
@@ -180,9 +209,9 @@ const OneProject = () => {
                 <div className="mb-6">
                     <h3 className="text-xl font-semibold text-gray-700 mb-2">Project Progress</h3>
                     <div className="w-full bg-gray-200 rounded-full dark:bg-gray-400">
-                        <div className={`${getProgressColor(project.progress)} text-xs font-medium text-white text-center p-0.5 leading-none rounded-full`} style={{ width: `${project.progress}%` }}>{project.progress}% </div>
+                        <div className={`${getProgressColor(projectData?.progress)} text-xs font-medium text-white text-center p-0.5 leading-none rounded-full`} style={{ width: `${projectData?.progress}%` }}>{projectData?.progress}% </div>
                     </div>
-                    <div className="text-gray-600 mt-2">{project.progress}% completed</div>
+                    <div className="text-gray-600 mt-2">{projectData?.progress}% completed</div>
                 </div>
 
                 {/* Tasks */}
@@ -193,9 +222,8 @@ const OneProject = () => {
                             <MdOutlineAddTask size={20} className='custom-color mx-1 cursor-pointer' style={{ fontWeight: 'bold' }} />
                         </div>
                         <div>
-                            {currentIndex + 1} / {project.tasks.length}
+                            {currentIndex + 1} / {tasks.length}
                         </div>
-
                     </div>
                     <div className="relative">
                         <div className="flex items-center justify-center">
@@ -206,7 +234,7 @@ const OneProject = () => {
                                 <FaArrowCircleLeft size={25} className='custom-color' />
                             </button>
                             <div className="w-full flex justify-center " >
-                                <TaskCard task={project.tasks[currentIndex]} />
+                                <TaskCard task={tasks[currentIndex]} />
                             </div>
                             <button
                                 onClick={nextTask}
@@ -221,13 +249,24 @@ const OneProject = () => {
                 {/* Teams */}
                 <div>
                     <h3 className="text-xl font-semibold text-gray-700 mb-4">Teams Working on the Project</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
-                        {project.teams.map((team, index) => (
-                            <TeamCard key={index} team={team} />
-                        ))}
-                    </div>
+                    {
+                        teams?.length>0?
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
+                            {teams.map((team, index) => (
+                                <TeamCard key={index} team={team} />
+                            ))}
+                        </div>
+                        :
+                        <div>No Active Team found on this project</div>
+                        
+                        
+
+                    }
                 </div>
             </div>
+            :
+            <div>Data Not Found</div>
+            }
         </div>
     );
 };

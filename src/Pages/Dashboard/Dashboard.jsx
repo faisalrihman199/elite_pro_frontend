@@ -16,6 +16,8 @@ import TeamDashboard from './DashboadChilds/TeamDashboard';
 import Navbar from '../../Components/NavSide/Nabar';
 import OneProject from './DashboadChilds/OneProject';
 import OneTeam from './DashboadChilds/OneTeam';
+import OneEmployee from './DashboadChilds/OneEmployee';
+import Settings from './DashboadChilds/Settings';
 
 const Dashboard = () => {
   const onLogout=()=>{
@@ -31,7 +33,10 @@ const Dashboard = () => {
         <div className="md:mt-16">
           <Routes>
             <Route path="/" element={<MainDashboard />} />
+            <Route path="/setting" element={<Settings />} />
+
             <Route path="/employees" element={<EmployeesDashboard />} />
+            <Route path="/one_employee" element={<OneEmployee />} />
             <Route path="/teams" element={<TeamDashboard />} />
             <Route path="/one_team" element={<OneTeam />} />
             <Route path="/projects" element={<ProjectsDashboard />} />

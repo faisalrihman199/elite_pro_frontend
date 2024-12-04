@@ -4,8 +4,11 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useAPI } from "../../Context/APIContext";
 import { toast } from "react-toastify";
 import { SyncLoader } from "react-spinners";
+import { useLocation } from "react-router-dom";
 
 function EmployeeForm() {
+  const location=useLocation();
+  const isSetting=location.pathname.includes('setting');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { register, handleSubmit, watch,setValue,reset, formState: { errors } } = useForm();
@@ -52,7 +55,7 @@ function EmployeeForm() {
 
   return (
     <section className="flex items-center justify-center min-h-screen bg-cover bg-center rounded bg-gray-100"  >
-      <div className="z-10 flex flex-col items-center justify-center px-6 py-2 mx-auto my-3 lg:py-0">
+      <div className="z-9 flex flex-col items-center justify-center px-6 py-2 mx-auto my-3 lg:py-0">
         <div className="w-full max-w-lg bg-white rounded-lg shadow-lg md:mt-0 xl:p-10" style={{ width: '800px', maxWidth: '90vw' }}>
           <div className="px-8 py-3">
 
@@ -236,7 +239,7 @@ function EmployeeForm() {
               {
                   loading ?
                     <SyncLoader color="white" /> :
-                    "Add Employee"
+                    isSetting?'Update Profile':"Add Employee"
                 }
                 
                 

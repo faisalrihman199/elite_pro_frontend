@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FaBell, FaUserCircle, FaSignOutAlt, FaCogs, FaEnvelope } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAPI } from '../../Context/APIContext';
 
 const Navbar = ({ userName }) => {
@@ -58,9 +58,9 @@ const Navbar = ({ userName }) => {
                     {dropdownOpen && (
                         <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg rounded-lg">
                             <ul className="py-2">
-                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
+                                <Link to="/dashboard/setting" className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
                                     <FaCogs className="mr-2" /> Settings
-                                </li>
+                                </Link>
                                 {/* <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
                                     <FaEnvelope className="mr-2" /> Messages
                                 </li> */}

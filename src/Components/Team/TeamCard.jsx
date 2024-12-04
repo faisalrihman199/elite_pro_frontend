@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAPI } from '../../Context/APIContext';
 
 const TeamCard = ({ team }) => {
+    
     const {getFilesPath}=useAPI();
     const remainingEmployees = team?.employees?.length > 5 
     ? team.employees.slice(5) 
@@ -23,13 +24,13 @@ const TeamCard = ({ team }) => {
                 {team?.employees?.slice(0, 5).map((employee, index) => (
                     <div key={index} className="relative group">
                         <img
-                            src={employee.image?getFilesPath(employee.image) :'https://via.placeholder.com/50'}
-                            alt={employee.name}
+                            src={(employee.profile_image || employee.image) ?getFilesPath(employee.image || employee.profile_image ) :'https://via.placeholder.com/50'}
+                            alt={employee.name?employee.name:`${employee.firstName} ${employee.lastName}` }
                             className="w-10 h-10 rounded-full border-2 border-white shadow-sm"
                         />
                         {/* Custom Tooltip */}
                         <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-black text-white text-xs px-2 py-1 rounded-md transition-opacity duration-300">
-                            {employee.name}
+                        {employee.name || `${employee.firstName} ${employee.lastName}` }
                         </div>
                     </div>
                 ))}
@@ -42,7 +43,7 @@ const TeamCard = ({ team }) => {
                             {/* Show remaining employee names as comma-separated list */}
                             {remainingEmployees.map((employee, index) => (
                                 <span key={index}>
-                                    {employee.name}{index < remainingEmployees.length - 1 && ', '}
+                                    {employee.name || `${employee.firstName} ${employee.lastName}` }{index < remainingEmployees.length - 1 && ', '}
                                 </span>
                             ))}
                         </div>
