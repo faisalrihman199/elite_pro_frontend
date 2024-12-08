@@ -7,6 +7,7 @@ import ModuleCard from '../../../Components/Module/ModuleCard';
 import TableView from '../../../Components/Dashboards/ChildDashboard/TableView';
 import { useAPI } from '../../../Context/APIContext';
 import LoadingSkeleton from '../../../Components/Dashboards/ChildDashboard/LoadingSkeleton';
+import { useLocation } from 'react-router-dom';
 
 const OneEmployee = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -19,7 +20,8 @@ const OneEmployee = () => {
     const [employeeInfo, setEmployeeInfo] = useState({});
     const [modules,setRunningModule]=useState([]);
     const [tableData,setTableData]=useState([]);
-    const employeeId = 5;
+    const location=useLocation();
+    const employeeId = location.state;
     const [page,setPage]=useState(1);
 
     useEffect(() => {

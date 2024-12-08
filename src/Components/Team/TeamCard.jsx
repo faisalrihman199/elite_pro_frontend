@@ -11,8 +11,8 @@ const TeamCard = ({ team }) => {
     : [];
     const navigate=useNavigate();
     const onShowMore=(team)=>{
-        console.log("Show more this team :", team);
-        navigate('/dashboard/one_team');
+        
+        navigate('/dashboard/one_team', {state:team.id});
     }
     return (
         <div className="max-w-md w-full bg-white border rounded-lg shadow-md p-6 flex flex-col items-center">

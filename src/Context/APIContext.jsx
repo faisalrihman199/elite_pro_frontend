@@ -106,6 +106,11 @@ const APIProvider = ({ children }) => {
     const response = await axios.get(url, getConfig());
     return response.data;
   };
+  const oneTeam=async (id) => {
+    const response = await axios.get(`${server}/teams/teamDashBoard?id=${id}`, getConfig());
+    return response.data;
+  };
+
   
 
 
@@ -157,10 +162,10 @@ const APIProvider = ({ children }) => {
   //Modules
   const addModule = async (data,id) => {
     console.log("Data is :", Object.fromEntries(data));
-    
     const response = await axios.post(`${server}/company/createModule${id?`?id=${id}`:''}`, data, getConfig());
     return response.data;
   };
+
   const modulesDashboard = async (period) => {
     const response = await axios.get(`${server}/dashboard/moduleStats?period=${period}`, getConfig());
     return response.data;
@@ -173,6 +178,10 @@ const APIProvider = ({ children }) => {
     const response = await axios.get(`${server}/company/getOneModule?id=${id}`, getConfig());
     return response.data;
   };
+  const profileData=async()=>{
+    const response = await axios.get(`${server}/company/getUserData`, getConfig());
+    return response.data;
+  }
 
 
 
@@ -180,13 +189,13 @@ const APIProvider = ({ children }) => {
 
 
     //Auth
-    login, signup, sendOtp, RegisterWithVerification,isAdmin, getUser,getConfig,verifyOtp,getFilesPath,
+    login, signup, sendOtp, RegisterWithVerification,isAdmin, getUser,getConfig,verifyOtp,getFilesPath,profileData,
 
     //Employeees
     addEmployee,employeesList,employeeDashboard,OneEmployee,
 
     //Teams
-    addTeam,teamsList,getOneTeam,teamDashboard,
+    addTeam,teamsList,getOneTeam,teamDashboard,oneTeam,
 
     //Projects
     projectsDashboard,addProject,oneProject,allProjects,

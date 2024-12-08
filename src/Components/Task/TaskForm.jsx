@@ -19,28 +19,29 @@ function TaskForm() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate=useNavigate();
   const [prevData,setPrevData]=useState({})
-  const taskId=17;
+  const location = useLocation();
+  const taskId=location.state;
   
   useEffect(() => {
-    oneTask(taskId)
-      .then((res) => {
-        console.log("Response :", res);
-        const task = res?.data?.task;
-  
-        // Populate form fields with task data
-        setValue('name', task.name || '');
-        setValue('description', task.description || '');
-        setValue('status', task.status || '');
-        setValue('startDate', task.startDate ? new Date(task.startDate).toISOString().substring(0, 10) : '');
-        setValue('endDate', task.endDate ? new Date(task.endDate).toISOString().substring(0, 10) : '');
-        setValue('teamId', task.Teams?.[0]?.id.toString() || '');
-  
-        // If needed, set other fields like projectId or progress
-        setPrevData(task); // Store original task data for comparison if required
-      })
-      .catch((err) => {
-        console.log("Error :", err);
-      });
+    if(taskId){
+      oneTask(taskId)
+        .then((res) => {
+          console.log("Response :", res);
+          const task = res?.data?.task;
+          // Populate form fields with task data
+          setValue('name', task.name || '');
+          setValue('description', task.description || '');
+          setValue('status', task.status || '');
+          setValue('startDate', task.startDate ? new Date(task.startDate).toISOString().substring(0, 10) : '');
+          setValue('endDate', task.endDate ? new Date(task.endDate).toISOString().substring(0, 10) : '');        
+          setValue('teamId', task.Teams?.[0]?.id.toString() || '');
+          // If needed, set other fields like projectId or progress
+          setPrevData(task); // Store original task data for comparison if required
+        })
+        .catch((err) => {
+          console.log("Error :", err);
+        });
+    }
   }, []);
   
 
@@ -53,7 +54,9 @@ function TaskForm() {
     }
 
     let formData = new FormData();
-    data.file = data.file[0];
+    if(data.file){
+      data.file = data.file[0];
+    }
     for (let key in data) {
       if (data.hasOwnProperty(key)) {
         formData.append(key, data[key]);
@@ -100,7 +103,9 @@ function TaskForm() {
   }, [])
   useEffect(() => {
     console.log("Selected Team is :", selectedTeam);
-
+    
+    
+    setValue('teamId', selectedTeam?.id.toString());
   }, [selectedTeam])
 
 

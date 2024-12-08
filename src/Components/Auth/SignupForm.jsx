@@ -8,11 +8,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 function SignupForm() {
     const location=useLocation();
+    const isSetting=location.pathname.includes('setting');
   const [showPassword, setShowPassword] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [loading, setLoading] = useState(false);
   const { sendOtp } = useAPI();
-  const isSetting=location.pathname.includes('setting');
   const navigate=useNavigate();
   const onSubmit = (data) => {
     console.log(data);

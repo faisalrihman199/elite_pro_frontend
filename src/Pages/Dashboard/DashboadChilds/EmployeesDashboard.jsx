@@ -6,7 +6,7 @@ import { MdOutlineWorkHistory } from 'react-icons/md';
 import { BiNotificationOff } from 'react-icons/bi';
 import { LiaUserPlusSolid } from 'react-icons/lia';
 import { FaUserPlus } from 'react-icons/fa6';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import EmployeeCard from '../../../Components/Employee/EmployeeCard';
 import { useAPI } from '../../../Context/APIContext';
 import LoadingSkeleton from '../../../Components/Dashboards/ChildDashboard/LoadingSkeleton';
@@ -52,9 +52,9 @@ const EmployeesDashboard = () => {
             setLoading(0);
         })
     },[page])    
-
+    const navigate=useNavigate();
     const handleViewDetails = (employee) => {
-        console.log("Show Details of employee :", employee);
+        navigate('/dashboard/one_employee',{state:employee.id})
 
     };
 

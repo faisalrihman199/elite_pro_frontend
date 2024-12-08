@@ -12,13 +12,11 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
             onPageChange(currentPage + 1);
         }
     };
-
     const handlePageClick = (page) => {
         if (page !== currentPage) {
             onPageChange(page);
         }
     };
-
     const renderPageNumbers = () => {
         let pages = [];
         const startPage = Math.max(1, currentPage - 1);

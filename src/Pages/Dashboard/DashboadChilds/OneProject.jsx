@@ -6,10 +6,13 @@ import TaskCard from '../../../Components/Task/TaskCard';
 import { MdOutlineAddTask } from 'react-icons/md';
 import { useAPI } from '../../../Context/APIContext';
 import LoadingSkeleton from '../../../Components/Dashboards/ChildDashboard/LoadingSkeleton';
+import { useLocation } from 'react-router-dom';
 
 
 const OneProject = () => {
-    const projectId=10;
+    const location=useLocation();
+    
+    const projectId=location.state;
     const {oneProject}=useAPI();
     const [loading,setLoading]=useState(1);
     const [projectData,setProjectData]=useState({});

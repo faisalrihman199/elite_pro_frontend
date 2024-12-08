@@ -6,7 +6,7 @@ import EmployeeForm from "../Employee/EmployeeForm";
 import { useAPI } from "../../Context/APIContext";
 import { FadeLoader, SyncLoader } from "react-spinners";
 import EmployeeCard from "../Employee/EmployeeCard";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 function ModuleForm() {
@@ -22,16 +22,16 @@ function ModuleForm() {
   const [employees, setEmployees] = useState([]);
   const [task, setTask] = useState(data?.task || null)
   const { getOneTeam, addModule,oneModule } = useAPI();
-  const [prev,setPrev]=useState({})
-  const moduleId=2;
+  const [prev,setPrev]=useState({});
+  const moduleId = location.state?.moduleId;;
   const selectedEmployee = employees?.find(employee => employee?.id.toString() === watch('employeeId'));
-
+  const navigate=useNavigate();
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
   };
   useEffect(() => {
     if (moduleId) {
-      oneModule(moduleId)
+    oneModule(moduleId)
         .then((res) => {
           console.log("Module Response:", res);
           const startDate = res.data.startDate ? new Date(res.data.startDate).toISOString().split('T')[0] : '';

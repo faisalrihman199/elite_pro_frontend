@@ -4,7 +4,7 @@ import RegularCard from '../../../Components/Dashboards/ChildDashboard/RegularCa
 import RoundedBarChart from '../../../Components/Dashboards/ChildDashboard/Analytics/RoundedBarChart';
 import SecondPieChart from '../../../Components/Dashboards/ChildDashboard/Analytics/SecondPieChart';
 import TableView from '../../../Components/Dashboards/ChildDashboard/TableView';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AiOutlineFileDone, AiTwotoneProject } from 'react-icons/ai';
 import { GiProcessor } from 'react-icons/gi';
 import { MdOutlineAddTask } from 'react-icons/md';
@@ -53,10 +53,10 @@ const TaskDashboard = () => {
     },[page])
 
 
-
+    const navigate=useNavigate();
     const headNames = ['Sr No', 'Task Name', 'Deadline ', 'Action'];
     const handleEdit = (id) => {
-        console.log("Edit this Task :", id);
+        navigate('/dashboard/add_task', {state:id})
     }
     const handleDelete = (id) => {
         console.log("Delete this Task :", id);

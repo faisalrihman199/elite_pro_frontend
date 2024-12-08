@@ -27,7 +27,7 @@ const TaskCard = ({ key, task }) => {
                 <h4 className="text-lg flex items-center font-semibold text-gray-800">{task.name} <FaEdit className='mx-2 cursor-pointer' /> </h4>
                 <div className="flex items-center text-gray-600">
                     <FaUsers className="mr-2" />
-                    <span>{task.Teams[0].name}</span>
+                    <span>{task.name}</span>
                 </div>
             </div>
 

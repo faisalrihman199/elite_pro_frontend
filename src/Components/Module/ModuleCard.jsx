@@ -20,7 +20,10 @@ const ModuleCard = ({key, module}) => {
 
                 <div className="flex  items-center text-gray-600">
                     <FaTasks className="mr-2" />
+                    {
+                        module.employees[0] &&
                     <span>{module.employees[0].firstName} {module.employees[0].lastName}</span>
+                    }
                 </div>
             </div>
 

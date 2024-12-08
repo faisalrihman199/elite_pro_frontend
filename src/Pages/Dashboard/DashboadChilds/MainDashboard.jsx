@@ -11,63 +11,6 @@ const MainDashboard = () => {
   const {mainDashboard}=useAPI();
   const [data,setData]=useState(null);
   const [loading, setLoading]=useState(false);
-
-  const employees = [
-    {
-      name: "2024-11-01",
-      value: 20,
-    },
-    {
-      name: "2024-11-08",
-      value: 1,
-    },
-    {
-      name: "2024-11-15",
-      value: 0,
-    },
-    {
-      name: "2024-11-22",
-      value: 5,
-    },
-  ];
-  
-  const projects = [
-    {
-      name: "2024-11-01",
-      value: 0,
-    },
-    {
-      name: "2024-11-08",
-      value: 1,
-    },
-    {
-      name: "2024-11-15",
-      value: 0,
-    },
-    {
-      name: "2024-11-22",
-      value: 4,
-    },
-  ];
-  
-  const tasks = [
-    {
-      name: "2024-11-01",
-      value: 3,
-    },
-    {
-      name: "2024-11-08",
-      value: 0,
-    },
-    {
-      name: "2024-11-15",
-      value: 0,
-    },
-    {
-      name: "2024-11-22",
-      value: 1,
-    },
-  ];
   useEffect(()=>{
     setLoading(true)
     mainDashboard(selectedOption)
@@ -139,8 +82,7 @@ const MainDashboard = () => {
                   <h2 className='text-lg ms-3 font-semibold'>
                     Employees
                   </h2>
-                 {data?.employeeCounts &&
-                  <BasicLineChart data={data?.employeeCounts} /> }
+                  <BasicLineChart data={data?.employeeCounts} /> 
                 </div>
                 <div className="p-4">
                   <h2 className='text-lg ms-3 font-semibold'>

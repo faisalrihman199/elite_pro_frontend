@@ -16,7 +16,7 @@ const ProjectsDashboard = () => {
     const [selectedOption, setSelectedOption] = useState('all');
     const [searchValue, setSearchValue] = useState("");
     const [change, setChange] = useState(false);
-    const headNames = ['Sr No', 'Project Title','Budget', 'Action '];
+    const headNames = ['Sr No', 'Project Title','Deadline', 'Action '];
     const navigate = useNavigate();
     const { projectsDashboard,allProjects } = useAPI();
     const [data, setData] = useState(null);
@@ -41,7 +41,7 @@ const ProjectsDashboard = () => {
 
     const handleEdit = (id) => {
         console.log("Edit this project :", id);
-        navigate('/dashboard/one_project')
+        navigate('/dashboard/one_project', {state:id})
     }
     const handleDelete = (id) => {
         console.log("Delete this project :", id);

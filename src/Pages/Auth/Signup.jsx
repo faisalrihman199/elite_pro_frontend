@@ -13,30 +13,7 @@ function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [loading,setLoading]=useState(false);
-  const {sendOtp}=useAPI();
-  const navigate=useNavigate();
-  const onSubmit = (data) => {
-    console.log(data);
-    setLoading(true);
-    sendOtp({email:data.email})
-    .then((res)=>{
-      if(res.success){
-        toast.success(res.message);
-        navigate('/verify_otp', {state:data})
-      }
-      else{
-        toast.error(res.message);
-      }
-    })
-    .catch((err)=>{
-      console.log("Error :", err);
-      toast.error("Error while Sending OTP");
-    })
-    .finally(()=>{
-        setLoading(false)
-    })
-
-  };
+ 
 
   return (
     <section

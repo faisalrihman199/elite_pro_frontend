@@ -18,12 +18,18 @@ function Login() {
 
   const onSubmit = (data) => {
     console.log(data);
+
     setLoading(true);
+
+
     login(data)
       .then((res) => {
         if (res.success) {
-            localStorage.setItem('user', JSON.stringify(res.data));
+          localStorage.setItem('user', JSON.stringify(res.data));
           navigate('/dashboard');
+        }
+        else{
+          toast.error(res.message);
         }
       })
       .catch((err) => {
@@ -114,8 +120,11 @@ function Login() {
                 className="w-full bg-site focus:ring-4 focus:ring-4 focus:outline-none focus:ring-primary-300 focus:outline-none text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center"
               >
                 {
-                  loading ?
-                    <SyncLoader color="white" /> :
+                  loading 
+                  ?
+                    <SyncLoader color="white" />
+                     :
+
                     "Sign in"
                 }
 
