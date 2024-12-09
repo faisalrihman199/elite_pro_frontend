@@ -6,7 +6,7 @@ import { MdOutlineWorkHistory } from 'react-icons/md';
 import { BiNotificationOff } from 'react-icons/bi';
 import { LiaUserPlusSolid } from 'react-icons/lia';
 import { FaUserPlus } from 'react-icons/fa6';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import EmployeeCard from '../../../Components/Employee/EmployeeCard';
 import { GoProject } from 'react-icons/go';
 import TaskCard from '../../../Components/Task/TaskCard';
@@ -14,79 +14,37 @@ import { useAPI } from '../../../Context/APIContext';
 import LoadingSkeleton from '../../../Components/Dashboards/ChildDashboard/LoadingSkeleton';
 const OneTeam = () => {
     const [selectedOption, setSelectedOption] = useState('monthly');
-    const location=useLocation();
+    const location = useLocation();
 
-    const teamId=location.state;
+    const teamId = location.state;
     const [searchValue, setSearchValue] = useState("");
-    const [loading, setLoading]=useState(1);
-    const [teamData, setTeamData]=useState({});
-    const [teamEmployees, setEmployees]=useState([]);
-    const [tasks,setTasks]=useState([]);
-    const {oneTeam}=useAPI();
-    useEffect(()=>{
+    const [loading, setLoading] = useState(1);
+    const [teamData, setTeamData] = useState({});
+    const [teamEmployees, setEmployees] = useState([]);
+    const [tasks, setTasks] = useState([]);
+    
+    const { oneTeam } = useAPI();
+    useEffect(() => {
         setLoading(1);
         oneTeam(teamId)
-        .then((res)=>{
+            .then((res) => {
                 setTeamData(res.data);
                 setEmployees(res?.data?.team?.employees);
-                setTasks(res.data.runningTasks);
-        })
-        .catch((err)=>{
-            console.log("Error is :", err);
-            
-        })
-        .finally(()=>{
-            setLoading(0);
-        })
-    },[teamId])
-    
-    const employees = [
-        {
-            id: 1,
-            name: 'John Doe',
-            email: 'johndoe@example.com',
-            department: 'Engineering',
-            designation: 'Software Engineer',
-            profilePicture: 'https://randomuser.me/api/portraits/men/1.jpg',
-        },
-        {
-            id: 2,
-            name: 'Jane Smith',
-            email: 'janesmith@example.com',
-            department: 'Marketing',
-            designation: 'Marketing Manager',
-            profilePicture: 'https://randomuser.me/api/portraits/women/2.jpg',
-        },
-        {
-            id: 3,
-            name: 'Samuel Green',
-            email: 'samuelgreen@example.com',
-            department: 'Human Resources',
-            designation: 'HR Manager',
-            profilePicture: 'https://randomuser.me/api/portraits/men/3.jpg',
-        },
-        {
-            id: 4,
-            name: 'Emily Johnson',
-            email: 'emilyjohnson@example.com',
-            department: 'Finance',
-            designation: 'Financial Analyst',
-            profilePicture: 'https://randomuser.me/api/portraits/women/4.jpg',
-        },
-        {
-            id: 5,
-            name: 'Michael Brown',
-            email: 'michaelbrown@example.com',
-            department: 'IT',
-            designation: 'System Administrator',
-            profilePicture: 'https://randomuser.me/api/portraits/men/5.jpg',
-        },
-        
+                setTasks(res?.data?.runningTasks);
 
-    ];
+            })
+            .catch((err) => {
+                console.log("Error is :", err);
+
+            })
+            .finally(() => {
+                setLoading(0);
+            })
+    }, [teamId])
+
+    const navigate=useNavigate();
     const handleViewDetails = (employee) => {
-        console.log("Show Details of employee :", employee);
-
+        navigate('/dashboard/one_employee',{state:employee.id})
     };
     // const tasks= [
     //     {
@@ -193,108 +151,114 @@ const OneTeam = () => {
     return (
         <div className='p-8' >
             {
-                loading===1?
-                <LoadingSkeleton />
-                :
-                teamData ?
-                <>
-                
-                    <div className="flex justify-between">
+                loading === 1 ?
+                    <LoadingSkeleton />
+                    :
+                    teamData ?
+                        <>
 
-                        <h1 className='text-2xl font-semibold my-2'>Team Name</h1>
-                        <button  className=' bg-site focus:ring-4 focus:ring-4 focus:outline-none focus:ring-primary-300 focus:outline-none text-white font-medium rounded-lg text-sm px-5  text-center flex items-center' >
-                            <FaUserPlus size={25} style={{ fontWeight: 'bold' }} />
-                        </button>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-4">
-                        <RegularCard
-                            data={{
-                                icon: GoProject,
-                                bgColor: '#0428f28f',
-                                heading: 'Total Tasks',
-                                para: teamData?.totalTasks
-                            }}
-                        />
-                        <RegularCard
-                            data={{
-                                icon: MdOutlineWorkHistory,
-                                bgColor: '#2ca907a8',
-                                heading: 'Running Tasks',
-                                para: teamData?.totalActiveTasks
-                            }}
-                        />
-                        <RegularCard
-                            data={{
-                                icon: FaTasks,
-                                bgColor: '#ed6724',
-                                heading: 'Pending Tasks',
-                                para: teamData?.totalPendingTasks
-                            }}
-                        />
-                    </div>
-                    <div className="my-4">
-                    <div className="mb-6">
                             <div className="flex justify-between">
-                            <h3 className="text-xl font-semibold text-gray-700 mb-4">Running Tasks</h3>
-                            <div>
-                                {currentIndex+1} / {tasks.length}
-                            </div>
 
+                                <h1 className='text-2xl font-semibold my-2'>Team Name</h1>
+                                <button className=' bg-site focus:ring-4 focus:ring-4 focus:outline-none focus:ring-primary-300 focus:outline-none text-white font-medium rounded-lg text-sm px-5  text-center flex items-center' >
+                                    <FaUserPlus size={25} style={{ fontWeight: 'bold' }} />
+                                </button>
                             </div>
-                            <div className="relative">
-                                <div className="flex items-center justify-center">
-                                    <button
-                                        onClick={prevTask}
-                                        className="absolute left-0 "
-                                    >
-                                        <FaArrowCircleLeft size={25} className='custom-color' />
-                                    </button>
-                                    <div className="w-full flex justify-center " >
-                                        <TaskCard task={tasks[currentIndex]} />
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-4">
+                                <RegularCard
+                                    data={{
+                                        icon: GoProject,
+                                        bgColor: '#0428f28f',
+                                        heading: 'Total Tasks',
+                                        para: teamData?.totalTasks
+                                    }}
+                                />
+                                <RegularCard
+                                    data={{
+                                        icon: MdOutlineWorkHistory,
+                                        bgColor: '#2ca907a8',
+                                        heading: 'Running Tasks',
+                                        para: teamData?.totalActiveTasks
+                                    }}
+                                />
+                                <RegularCard
+                                    data={{
+                                        icon: FaTasks,
+                                        bgColor: '#ed6724',
+                                        heading: 'Pending Tasks',
+                                        para: teamData?.totalPendingTasks
+                                    }}
+                                />
+                            </div>
+                            {
+                                tasks.length>0 &&
+
+
+                            <div className="my-4">
+
+                                <div className="mb-6">
+                                    <div className="flex justify-between">
+                                        <h3 className="text-xl font-semibold text-gray-700 mb-4">Running Tasks</h3>
+                                        <div>
+                                            {currentIndex + 1} / {tasks.length}
+                                        </div>
+
                                     </div>
-                                    <button
-                                        onClick={nextTask}
-                                        className="absolute right-0 "
-                                    >
-                                        <FaArrowCircleRight size={25} className='custom-color' />
-                                    </button>
+                                    <div className="relative">
+                                        <div className="flex items-center justify-center">
+                                            <button
+                                                onClick={prevTask}
+                                                className="absolute left-0 "
+                                            >
+                                                <FaArrowCircleLeft size={25} className='custom-color' />
+                                            </button>
+                                            <div className="w-full flex justify-center " >
+                                                <TaskCard task={tasks[currentIndex]} />
+                                            </div>
+                                            <button
+                                                onClick={nextTask}
+                                                className="absolute right-0 "
+                                            >
+                                                <FaArrowCircleRight size={25} className='custom-color' />
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
+                            }
 
-                    <div className="my-4">
-                        <div className="flex justify-between">
-                            <h3 className='text-xl font-semibold ms-2'>Members List</h3>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    placeholder="Search..."
-                                    className="rounded-full pl-10 pr-4 py-2 border border-gray-300 focus:outline-none focus:border-blue-500 w-full"
-                                    value={searchValue}
-                                    onChange={(e) => setSearchValue(e.target.value)}
-                                />
-                                <div className="absolute inset-y-0 right-5 pl-3 flex items-center " onClick={() => { setChange(!change) }} style={{ cursor: 'pointer' }} >
-                                    <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                                    </svg>
+                            <div className="my-4">
+                                <div className="flex justify-between">
+                                    <h3 className='text-xl font-semibold ms-2'>Members List</h3>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Search..."
+                                            className="rounded-full pl-10 pr-4 py-2 border border-gray-300 focus:outline-none focus:border-blue-500 w-full"
+                                            value={searchValue}
+                                            onChange={(e) => setSearchValue(e.target.value)}
+                                        />
+                                        <div className="absolute inset-y-0 right-5 pl-3 flex items-center " onClick={() => { setChange(!change) }} style={{ cursor: 'pointer' }} >
+                                            <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
+                                    {teamEmployees.map((employee) => (
+                                        <EmployeeCard
+                                            key={employee.id}
+                                            employee={employee}
+                                            onViewDetails={handleViewDetails}
+                                        />
+                                    ))}
                                 </div>
                             </div>
-
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
-                            {teamEmployees.map((employee) => (
-                                <EmployeeCard
-                                    key={employee.id}
-                                    employee={employee}
-                                    onViewDetails={handleViewDetails}
-                                />
-                            ))}
-                        </div>
-                    </div>
-                </>
-                :
-                <div>No data found</div>
+                        </>
+                        :
+                        <div>No data found</div>
 
             }
 

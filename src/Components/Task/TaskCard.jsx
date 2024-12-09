@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { FaArrowCircleLeft, FaArrowCircleRight, FaCalendarAlt, FaEdit, FaUsers } from 'react-icons/fa'
 import ModuleCard from '../Module/ModuleCard'
 import { MdOutlineAddTask } from 'react-icons/md';
+import { useNavigate } from 'react-router-dom';
 
 const TaskCard = ({ key, task }) => {
     const getProgressColor = (progress) => {
@@ -10,21 +11,23 @@ const TaskCard = ({ key, task }) => {
         if (progress < 80) return 'bg-green-600';
         return 'bg-site';
     };
+    const handleAddModule=()=>{
+    const data={
+        teamId:task?.Teams[0]?.id,
+        task
+    }
+       navigate('/dashboard/add_module',{state:data});
+    }
 
     const [currentIndex, setCurrentIndex] = useState(0);
+    const navigate=useNavigate();
 
-    const nextModule = () => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % task?.modules?.length);
-    };
-
-    const prevModule = () => {
-        setCurrentIndex((prevIndex) => (prevIndex - 1 + task?.modules?.length) % task?.modules?.length);
-    };
+    
 
     return (
         <div key={key} className="mb-4 p-6 border rounded-lg w-full">
             <div className="flex justify-between items-center mb-4">
-                <h4 className="text-lg flex items-center font-semibold text-gray-800">{task.name} <FaEdit className='mx-2 cursor-pointer' /> </h4>
+                <h4 className="text-lg flex items-center font-semibold text-gray-800">{task.name} <FaEdit className='mx-2 cursor-pointer' onClick={()=>{navigate('/dashboard/add_task', {state:task.id})}} /> </h4>
                 <div className="flex items-center text-gray-600">
                     <FaUsers className="mr-2" />
                     <span>{task.name}</span>
@@ -36,7 +39,6 @@ const TaskCard = ({ key, task }) => {
                 <FaCalendarAlt className="mr-2" />
                 <span>{new Date(task?.startDate).toLocaleDateString()} - {new Date(task?.endDate).toLocaleDateString()}</span>
             </div>
-
             <div className="w-full bg-gray-200 rounded-full dark:bg-gray-400">
                 <div className={`${getProgressColor(task.progress)} text-xs font-medium text-white text-center p-0.5 leading-none rounded-full`} style={{ width: `${task.progress}%` }}>
                     {task.progress}%
@@ -49,7 +51,7 @@ const TaskCard = ({ key, task }) => {
                 <div className="flex justify-between">
                     <div className="flex items-center mb-4">
                         <h3 className="text-xl font-semibold text-gray-700 ">Modules</h3>
-                        <MdOutlineAddTask size={20} className='custom-color mx-1 cursor-pointer' style={{ fontWeight: 'bold' }} />
+                        <MdOutlineAddTask size={20} className='custom-color mx-1 cursor-pointer' style={{ fontWeight: 'bold' }} onClick={handleAddModule} />
                     </div>
                     <div>
                         {currentIndex + 1} / {task.modules.length}

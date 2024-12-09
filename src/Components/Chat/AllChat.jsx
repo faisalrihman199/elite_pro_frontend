@@ -14,6 +14,7 @@ import { CiCamera } from 'react-icons/ci';
 import { LuCamera } from 'react-icons/lu';
 import { TbMessage2 } from 'react-icons/tb';
 import { Link } from 'react-router-dom';
+import { useSocket } from '../../Context/SocketContext';
 
 
 const AllChat = ({ chats, onChatSelect, onChatDelete }) => {
@@ -31,7 +32,17 @@ const AllChat = ({ chats, onChatSelect, onChatDelete }) => {
   const fileInputRef = useRef(null);
   const [groupIcon, setGroupIcon] = useState(null);
   const [searchInput, setSearchInput] = useState('');
-
+  const [contacts, setContacts] = useState();
+  const {contactList}=useSocket();
+  useEffect(()=>{
+    contactList()
+    .then((res)=>{
+      setContacts(res.data)
+    })
+    .catch((err)=>{
+      console.log(err)
+    })
+  },[])
 
 
 
@@ -48,21 +59,7 @@ const AllChat = ({ chats, onChatSelect, onChatDelete }) => {
       setSelectedImage(imageUrl);
     }
   };
-  const [contacts, setContacts] = useState([
-    { id: 1, name: "Ayesha" },
-    { id: 2, name: "Ali" },
-    { id: 3, name: "Zainab" },
-    { id: 4, name: "Hassan" },
-    { id: 5, name: "Fatima" },
-    { id: 6, name: "Ali" },
-    { id: 7, name: "Zainab" },
-    { id: 8, name: "Hassan" },
-    { id: 9, name: "Fatima" },
-    { id: 10, name: "Ali" },
-    { id: 11, name: "Zainab" },
-    { id: 12, name: "Hassan" },
-    { id: 13, name: "Fatima" },
-  ]);
+
 
   const toggleContactInGroup = (contactId) => {
     setNewGroup((prevGroup) =>
@@ -71,17 +68,17 @@ const AllChat = ({ chats, onChatSelect, onChatDelete }) => {
         : [...prevGroup, contactId]
     );
   };
-  const filteredChats = chats.filter(
+  const filteredChats = chats?.filter(
     (chat) =>
       activeTab === 'Chats' &&
-      (chat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase()))
+      (chat?.otherUser?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        chat?.lastMessage.toLowerCase().includes(searchQuery.toLowerCase()))
   );
-  const filteredContacts = contacts.filter((contact) => {
+  const filteredContacts = contacts?.filter((contact) => {
     if (createGroup) {
       return newGroup.includes(contact.id);
     } else {
-      return contact.name.toLowerCase().includes(searchInput.toLowerCase());
+      return contact?.firstName.toLowerCase().includes(searchInput.toLowerCase()) || contact?.lastName.toLowerCase().includes(searchInput.toLowerCase());
     }
   });
   

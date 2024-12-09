@@ -6,35 +6,55 @@ import { toast } from "react-toastify";
 import { useAPI } from "../../Context/APIContext";
 import { useLocation, useNavigate } from "react-router-dom";
 
-function SignupForm() {
-    const location=useLocation();
-    const isSetting=location.pathname.includes('setting');
+function SignupForm({ profile }) {
+  const location = useLocation();
+  const isSetting = location.pathname.includes("setting");
   const [showPassword, setShowPassword] = useState(false);
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { sendOtp,updateCompanyProfile } = useAPI();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const { sendOtp } = useAPI();
-  const navigate=useNavigate();
+
+  // Extract profile data
+  const defaultValues = profile
+    ? {
+        name: profile.companies[0]?.name || "",
+        email: profile.email || "",
+        password: "",
+        phone: profile.companies[0]?.phone || "",
+        website: profile.companies[0]?.website || "",
+        address: profile.companies[0]?.address || "",
+      }
+    : {};
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({ defaultValues });
+
   const onSubmit = (data) => {
     console.log(data);
     setLoading(true);
-    sendOtp({email:data.email})
-    .then((res)=>{
-      if(res.success){
-        toast.success(res.message);
-        navigate('/verify_otp', {state:data})
-      }
-      else{
-        toast.error(res.message);
-      }
-    })
-    .catch((err)=>{
-      console.log("Error :", err);
-      toast.error("Error while Sending OTP");
-    })
-    .finally(()=>{
-        setLoading(false)
-    })
+    const dt=profile?data:{ email: data.email };
+    const apiCall = profile ? updateCompanyProfile : sendOtp;
 
+    apiCall(dt)
+      .then((res) => {
+        if (res.success) {
+          toast.success(res.message);
+          
+          !profile && navigate("/verify_otp", { state: data });
+        } else {
+          toast.error(res.message);
+        }
+      })
+      .catch((err) => {
+        console.log("Error :", err);
+        toast.error(err.response.data.message || "Error while Request");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
@@ -50,7 +70,7 @@ function SignupForm() {
           id="name"
           className="bg-gray-100 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-3"
           placeholder="Your name"
-          {...register('name', { required: 'Name is required' })}
+          {...register("name", { required: "Name is required" })}
         />
         {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
       </div>
@@ -67,7 +87,7 @@ function SignupForm() {
             id="email"
             className="bg-gray-100 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-3"
             placeholder="name@company.com"
-            {...register('email', { required: 'Email is required' })}
+            {...register("email", { required: "Email is required" })}
           />
           {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
         </div>
@@ -83,7 +103,7 @@ function SignupForm() {
               id="password"
               placeholder="••••••••"
               className="bg-gray-100 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-3"
-              {...register('password', { required: 'Password is required' })}
+              {...register("password", !profile && { required: "Password is required" })}
             />
             <button
               type="button"
@@ -109,7 +129,7 @@ function SignupForm() {
             id="phone"
             className="bg-gray-100 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-3"
             placeholder="Your phone number"
-            {...register('phone', { required: 'Phone is required' })}
+            {...register("phone", { required: "Phone is required" })}
           />
           {errors.phone && <p className="text-sm text-red-500">{errors.phone.message}</p>}
         </div>
@@ -124,7 +144,7 @@ function SignupForm() {
             id="website"
             className="bg-gray-100 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-3"
             placeholder="www.example.com"
-            {...register('website', { required: 'Website is required' })}
+            {...register("website", { required: "Website is required" })}
           />
           {errors.website && <p className="text-sm text-red-500">{errors.website.message}</p>}
         </div>
@@ -141,36 +161,40 @@ function SignupForm() {
           rows="2"
           className="bg-gray-100 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-3"
           placeholder="Your address"
-          {...register('address', { required: 'Address is required' })}
+          {...register("address", { required: "Address is required" })}
         />
         {errors.address && <p className="text-sm text-red-500">{errors.address.message}</p>}
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-start">
-          <div className="flex items-center h-5">
-            <input
-              id="terms"
-              aria-describedby="terms"
-              type="checkbox"
-              className="w-4 h-4 border border-gray-300 rounded bg-gray-100 focus:ring-3 focus:ring-primary-300"
-              {...register('terms')}
-            />
-          </div>
-          <div className="ml-3 text-sm">
-            <label htmlFor="terms" className="text-gray-600">
-              Agree to terms and conditions
-            </label>
+      {/* Terms & Submit Button */}
+      {
+        !profile &&
+        <div className="flex items-center justify-between">
+          <div className="flex items-start">
+            <div className="flex items-center h-5">
+              <input
+                id="terms"
+                aria-describedby="terms"
+                type="checkbox"
+                className="w-4 h-4 border border-gray-300 rounded bg-gray-100 focus:ring-3 focus:ring-primary-300"
+                {...register("terms")}
+              />
+            </div>
+            <div className="ml-3 text-sm">
+              <label htmlFor="terms" className="text-gray-600">
+                Agree to terms and conditions
+              </label>
+            </div>
           </div>
         </div>
-      </div>
+      }
 
       <button
         type="submit"
         disabled={loading}
         className="w-full bg-site focus:ring-4 focus:ring-4 focus:outline-none focus:ring-primary-300 focus:outline-none text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center"
       >
-        {loading ? <SyncLoader color="white" /> : isSetting?'Update Profile':'Sign up'}
+        {loading ? <SyncLoader color="white" /> : isSetting ? "Update Profile" : "Sign up"}
       </button>
     </form>
   );

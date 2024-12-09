@@ -5,7 +5,6 @@ import { IoIosArrowDown } from 'react-icons/io';
 import { MdOutlineDownloading } from 'react-icons/md';
 
 const OneMessage = ({ message, handleReply,lastMessage }) => {
-    console.log("Last Message :", lastMessage);
     
     const [showMenu, setShowMenu] = useState(false);
     const [hovered, setHovered] = useState(false);

@@ -29,7 +29,9 @@
     "react-spinners": "^0.14.1",
     "react-toastify": "^10.0.6",
     "reactstrap": "^9.2.3",
-    "recharts": "^2.13.3"
+    "recharts": "^2.13.3",
+    "socket.io-client": "^4.8.1",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",

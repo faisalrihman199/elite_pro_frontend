@@ -178,8 +178,24 @@ const APIProvider = ({ children }) => {
     const response = await axios.get(`${server}/company/getOneModule?id=${id}`, getConfig());
     return response.data;
   };
+  const updateModule = async (data,id) => {
+    const response = await axios.put(`${server}/modules/module-progress${id?`?id=${id}`:''}`, data, getConfig());
+    return response.data;
+  }
+
+
+
+  //Profile
   const profileData=async()=>{
     const response = await axios.get(`${server}/company/getUserData`, getConfig());
+    return response.data;
+  }
+  const updateEmployeProfile=async(data)=>{
+    const response = await axios.put(`${server}/employee/updateProfile`,data, getConfig());
+    return response.data;
+  }
+  const updateCompanyProfile=async(data)=>{
+    const response = await axios.put(`${server}/company/updateCompanyProfile`,data, getConfig());
     return response.data;
   }
 
@@ -189,10 +205,10 @@ const APIProvider = ({ children }) => {
 
 
     //Auth
-    login, signup, sendOtp, RegisterWithVerification,isAdmin, getUser,getConfig,verifyOtp,getFilesPath,profileData,
+    login, signup, sendOtp, RegisterWithVerification,isAdmin, getUser,getConfig,verifyOtp,getFilesPath,profileData,updateCompanyProfile,
 
     //Employeees
-    addEmployee,employeesList,employeeDashboard,OneEmployee,
+    addEmployee,employeesList,employeeDashboard,OneEmployee,updateEmployeProfile,
 
     //Teams
     addTeam,teamsList,getOneTeam,teamDashboard,oneTeam,
@@ -205,7 +221,7 @@ const APIProvider = ({ children }) => {
 
 
     //Modules
-    addModule,modulesDashboard,allModules,oneModule,
+    addModule,modulesDashboard,allModules,oneModule,updateModule,
 
     //Main Dashboard
     mainDashboard,

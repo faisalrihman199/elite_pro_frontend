@@ -100,7 +100,7 @@ function TaskForm() {
       .finally(() => {
         setLoading(0);
       })
-  }, [])
+  }, [isModalOpen])
   useEffect(() => {
     console.log("Selected Team is :", selectedTeam);
     
@@ -240,9 +240,9 @@ function TaskForm() {
                 </div>
                 {
                   !taskId &&
-                  <div className="md:w-1/2 sm:w-full md:ps-2" >
+                  <div className="md:w-full sm:w-full md:ps-2" >
                     <p
-                      onClick={()=>{navigate('/dashboard/add_module')}}
+                      onClick={()=>{navigate('/dashboard/projects')}}
                       className="cursor-pointer my-2 bg-site w-full focus:ring-4 text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                     >
                       Finish Project Assignment

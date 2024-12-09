@@ -53,7 +53,7 @@ export default function CustomizedTables({ rows, headNames, handleDelete, handle
               <StyledTableCell className='font-light'>{index + 1}</StyledTableCell>
               <StyledTableCell className='font-light'>{row[Object.keys(row)[1]]}</StyledTableCell>
               <StyledTableCell className="font-light">
-               {row[Object.keys(row)[2]]}
+                {new Date(row[Object.keys(row)[2]]).toLocaleDateString()}
               </StyledTableCell>
               <StyledTableCell className='font-light'>
                 <FontAwesomeIcon

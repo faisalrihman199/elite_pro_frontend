@@ -6,7 +6,7 @@ import TaskCard from '../../../Components/Task/TaskCard';
 import { MdOutlineAddTask } from 'react-icons/md';
 import { useAPI } from '../../../Context/APIContext';
 import LoadingSkeleton from '../../../Components/Dashboards/ChildDashboard/LoadingSkeleton';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 
 const OneProject = () => {
@@ -184,6 +184,12 @@ const OneProject = () => {
     const prevTask = () => {
         setCurrentIndex((prevIndex) => (prevIndex - 1 + project.tasks.length) % project.tasks.length);
     };
+    const navigate=useNavigate();
+    const addTask=()=>{
+        sessionStorage.setItem('addingProject',projectId);
+        console.log("Project Id saved to Session :", projectId);
+        navigate('/dashboard/add_task');
+    }
 
     return (
         <div className="p-8  min-h-screen">
@@ -222,7 +228,7 @@ const OneProject = () => {
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center">
                             <h3 className="text-xl font-semibold text-gray-700 ">Tasks</h3>
-                            <MdOutlineAddTask size={20} className='custom-color mx-1 cursor-pointer' style={{ fontWeight: 'bold' }} />
+                            <MdOutlineAddTask size={20} className='custom-color mx-1 cursor-pointer' style={{ fontWeight: 'bold' }} onClick={addTask} />
                         </div>
                         <div>
                             {currentIndex + 1} / {tasks.length}
@@ -232,7 +238,8 @@ const OneProject = () => {
                         <div className="flex items-center justify-center">
                             <button
                                 onClick={prevTask}
-                                className="absolute left-0 "
+                                disabled={currentIndex===0}
+                                className={`absolute left-0 `}
                             >
                                 <FaArrowCircleLeft size={25} className='custom-color' />
                             </button>
@@ -241,6 +248,7 @@ const OneProject = () => {
                             </div>
                             <button
                                 onClick={nextTask}
+                                disabled={currentIndex===tasks.length-1}
                                 className="absolute right-0 "
                             >
                                 <FaArrowCircleRight size={25} className='custom-color' />

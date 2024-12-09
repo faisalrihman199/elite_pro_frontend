@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useAPI } from "../../Context/APIContext";
@@ -6,44 +6,71 @@ import { toast } from "react-toastify";
 import { SyncLoader } from "react-spinners";
 import { useLocation } from "react-router-dom";
 
-function EmployeeForm() {
-  const location=useLocation();
-  const isSetting=location.pathname.includes('setting');
+function EmployeeForm({ profile }) {
+  const location = useLocation();
+  const isSetting = location.pathname.includes("setting");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { register, handleSubmit, watch,setValue,reset, formState: { errors } } = useForm();
+  const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm();
   const [profilePicture, setProfilePicture] = useState(null);
-  const [loading,setLoading]=useState(false);
-  const password = watch('password');
-  const {addEmployee}=useAPI();
-  const onSubmit = (data) => {
-    delete data.confirmPassword;
-    let formData =new FormData();
-    for (const key in data) {
-        formData.append(key, data[key]);
-      
+  const [loading, setLoading] = useState(false);
+  const password = watch("password");
+  const { addEmployee, updateEmployeProfile, getFilesPath } = useAPI();
+
+  useEffect(() => {
+    if (profile) {
+      // Set default values for updating profile
+      reset({
+        firstName: profile.employees?.[0]?.firstName || "",
+        lastName: profile.employees?.[0]?.lastName || "",
+        email: profile.email || "",
+        cnic: profile.employees?.[0]?.cnic || "",
+        phone: profile.employees?.[0]?.phone || "",
+        dob: profile.employees?.[0]?.dateOfBirth || "",
+        department: profile.employees?.[0]?.department || "",
+        designation: profile.employees?.[0]?.designation || "",
+        address: profile.employees?.[0]?.address || "",
+      });
+      setProfilePicture(profile.employees?.[0]?.profile_image ? getFilesPath(profile.employees?.[0]?.profile_image) : null);
     }
+  }, [profile, reset]);
+
+
+  const onSubmit = (data) => {
+    // Remove confirmPassword from data before sending
+    delete data.confirmPassword;
+
+    // Create FormData object for API submission
+    let formData = new FormData();
+    for (const key in data) {
+      formData.append(key, data[key]);
+    }
+
     setLoading(true);
-    addEmployee(formData)
-    .then((res)=>{
-      if(res.success){
-        toast.success(res.message);
-        reset();
-        setProfilePicture(null)
-      }
-      else{
-        toast.error(res.message);
-      }
-    })
-    .catch((err)=>{
-      console.log("Error :", err);
-      toast.error(err.response.data.message || "Error while Adding Employee");
-    })
-    .finally(()=>{
-      setLoading(false);
-    })
-    
+
+    // Decide whether to update the profile or add a new employee
+    const apiCall = profile ? updateEmployeProfile : addEmployee;
+
+    apiCall(formData)
+      .then((res) => {
+        if (res.success) {
+          toast.success(res.message);
+          
+          !profile && reset(); // Reset form fields
+          !profile && setProfilePicture(null); // Clear the profile picture preview
+        } else {
+          toast.error(res.message);
+        }
+      })
+      .catch((err) => {
+        console.error("Error:", err);
+        toast.error(err.response?.data?.message || "An error occurred");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
+
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
@@ -135,7 +162,7 @@ function EmployeeForm() {
                       type={showPassword ? "text" : "password"}
                       className="bg-gray-100 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-3"
                       placeholder="••••••••"
-                      {...register('password', { required: 'Password is required' })}
+                      {...register('password', !profile && { required: 'Password is required' })}
                     />
                     <button
                       type="button"
@@ -155,11 +182,14 @@ function EmployeeForm() {
                       type={showConfirmPassword ? "text" : "password"}
                       className="bg-gray-100 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-3"
                       placeholder="••••••••"
-                      {...register('confirmPassword', {
+                      {...register('confirmPassword', 
+                        !profile &&
+                        {
                         required: 'Confirm Password is required',
                         validate: (value) =>
                           value === password || 'Passwords do not match',
-                      })}
+                      }
+                    )}
                     />
                     <button
                       type="button"
@@ -236,13 +266,13 @@ function EmployeeForm() {
               </div>
 
               <button type="submit" className="w-full bg-site focus:ring-4 text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center">
-              {
+                {
                   loading ?
                     <SyncLoader color="white" /> :
-                    isSetting?'Update Profile':"Add Employee"
+                    isSetting ? 'Update Profile' : "Add Employee"
                 }
-                
-                
+
+
               </button>
             </form>
           </div>

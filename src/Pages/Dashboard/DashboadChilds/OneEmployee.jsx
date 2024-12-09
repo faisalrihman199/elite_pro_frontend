@@ -7,7 +7,7 @@ import ModuleCard from '../../../Components/Module/ModuleCard';
 import TableView from '../../../Components/Dashboards/ChildDashboard/TableView';
 import { useAPI } from '../../../Context/APIContext';
 import LoadingSkeleton from '../../../Components/Dashboards/ChildDashboard/LoadingSkeleton';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const OneEmployee = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -56,10 +56,11 @@ const OneEmployee = () => {
         })
     },[page]);
 
-
+    const navigate=useNavigate();
     const headNames = ['Sr No', 'Module Name', 'Deadline ', 'Action'];
     const handleEdit = (id) => {
         console.log("Edit this Module :", id);
+        navigate('/dashboard/add_module', { state: { moduleId: id } });
     }
     const handleDelete = (id) => {
         console.log("Delete this Module :", id);

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
+import { useAPI } from '../../Context/APIContext';
 
 const Contacts = ({ contacts, grouping,toggleContactInGroup,newGroup }) => {
   
-  
+  const {getFilesPath}=useAPI();
   return (
     <div>
       <div>
@@ -10,11 +11,11 @@ const Contacts = ({ contacts, grouping,toggleContactInGroup,newGroup }) => {
           <div key={contact.id} className="flex my-2 items-center p-1 px-2 hover:bg-gray-200 rounded-md justify-between">
             <div className="flex items-center">
               <img
-                src={`https://randomuser.me/api/portraits/men/${contact.id}.jpg`}
+                src={contact?.profile_image? getFilesPath(contact?.profile_image):`https://randomuser.me/api/portraits/men/${contact.id}.jpg`}
                 alt="User Avatar"
                 className="mr-2 h-10 w-10 rounded-full object-cover"
               />
-              {contact.name}
+              {contact?.firstName} {contact?.lastName}
             </div>
             {grouping && (
               <label className="relative flex items-center">
