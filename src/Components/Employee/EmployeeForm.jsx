@@ -223,9 +223,9 @@ function EmployeeForm({ profile }) {
                   <input
                     type="date"
                     className="bg-gray-100 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-3"
-                    {...register('dob', { required: 'Date of birth is required' })}
+                    {...register('dateOfBirth', { required: 'Date of birth is required' })}
                   />
-                  {errors.dob && <p className="text-sm text-red-500">{errors.dob.message}</p>}
+                  {errors.dateOfBirth && <p className="text-sm text-red-500">{errors.dateOfBirth.message}</p>}
                 </div>
               </div>
 
