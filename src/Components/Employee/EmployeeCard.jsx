@@ -2,9 +2,14 @@ import React from 'react';
 import { FaBuilding, FaBriefcase, FaCalendarAlt } from 'react-icons/fa'; // Import icons
 import { format } from 'date-fns'; // To format the date
 import { useAPI } from '../../Context/APIContext';
+import { useNavigate } from 'react-router-dom';
 
-const EmployeeCard = ({ employee, onViewDetails }) => {
+const EmployeeCard = ({ employee }) => {
     const {getFilesPath}=useAPI();
+    const navigate=useNavigate();
+    const onViewDetails = (employee) => {
+        navigate('/dashboard/one_employee',{state:employee.id})
+    };
     return (
         <div className="max-w-sm w-full bg-white border rounded-lg shadow-md p-4 flex flex-col items-center">
             {/* Profile Picture */}
@@ -33,12 +38,12 @@ const EmployeeCard = ({ employee, onViewDetails }) => {
                 </div>
             </div>
 
-            <button
-                onClick={() => onViewDetails(employee)}
-                className="mt-4 bg-site text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+            <p
+                onClick={() => {onViewDetails(employee);}}
+                className="mt-4 bg-site text-white px-4 py-2 rounded-lg hover:bg-blue-600 cursor-pointer "
             >
                 View Details
-            </button>
+            </p>
         </div>
     );
 };

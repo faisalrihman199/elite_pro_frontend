@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { FaBell, FaUserCircle, FaSignOutAlt, FaCogs, FaEnvelope } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAPI } from '../../Context/APIContext';
+import { useSocket } from '../../Context/SocketContext';
 
 const Navbar = ({ userName }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -9,10 +10,12 @@ const Navbar = ({ userName }) => {
     const dropdownRef = useRef(null);
     const navigate=useNavigate();
     const {getUser}=useAPI();
+    const {disconnectSocket}=useSocket();
     const user=getUser();
     const onLogout = () => {
         localStorage.removeItem('user')
         navigate('/');
+        disconnectSocket();
       }
     const toggleDropdown = () => setDropdownOpen((prev) => !prev);
 

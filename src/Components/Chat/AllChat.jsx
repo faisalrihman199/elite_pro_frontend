@@ -17,7 +17,7 @@ import { Link } from 'react-router-dom';
 import { useSocket } from '../../Context/SocketContext';
 
 
-const AllChat = ({ chats, onChatSelect, onChatDelete }) => {
+const AllChat = ({ chats, onChatSelect, onChatDelete,setNewChat }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [groups, setGroups] = useState([]);
   const [activeTab, setActiveTab] = useState('Chats');
@@ -78,7 +78,7 @@ const AllChat = ({ chats, onChatSelect, onChatDelete }) => {
     if (createGroup) {
       return newGroup.includes(contact.id);
     } else {
-      return contact?.firstName.toLowerCase().includes(searchInput.toLowerCase()) || contact?.lastName.toLowerCase().includes(searchInput.toLowerCase());
+      return contact?.name.toLowerCase().includes(searchInput.toLowerCase());
     }
   });
   
@@ -309,7 +309,7 @@ const AllChat = ({ chats, onChatSelect, onChatDelete }) => {
                         </p>
                       </div>
                       <div className="my-2 bg-white rounded-md p-2 scroll-auto " style={{ maxHeight: '46vh', overflow: 'auto' }}>
-                        <Contacts newGroup={newGroup} contacts={filteredContacts} grouping={grouping} toggleContactInGroup={toggleContactInGroup} />
+                        <Contacts newGroup={newGroup} setNewChat={setNewChat} contacts={filteredContacts} grouping={grouping} toggleContactInGroup={toggleContactInGroup} />
                       </div>
                     </ul>
                   </div>
@@ -331,14 +331,11 @@ const AllChat = ({ chats, onChatSelect, onChatDelete }) => {
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          {activeTab === 'Chats' && <ShowChats chats={filteredChats} activeTab={activeTab} />}
-          {activeTab === 'Archive' && <ShowChats chats={archivedChats} activeTab={activeTab} />}
+          {activeTab === 'Chats' && <ShowChats chats={filteredChats} activeTab={activeTab} onChatSelect={onChatSelect} />}
           {activeTab === 'Groups' && (
             <ShowChats chats={groups.flatMap((group) => group.chats)} activeTab={activeTab} />
           )}
-          {activeTab === 'Users Chats' && (
-            <ShowChats chats={groups.flatMap((group) => group.chats)} activeTab={activeTab} />
-          )}
+         
           {activeTab === 'Starred' && (
             <ShowChats chats={groups.flatMap((group) => group.chats)} activeTab={activeTab} />
           )}

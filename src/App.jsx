@@ -1,5 +1,4 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
-import { useState } from 'react'
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom'
 import './App.css'
 import Dashboard from './Pages/Dashboard/Dashboard'
 import ForgotPassword from './Pages/Auth/ForgotPassword'
@@ -12,8 +11,28 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import ScrollToTop from './Components/ScrollTop'
 import { FloatingWhatsApp } from 'react-floating-whatsapp'
-import { Avatar } from '@mui/material'
-import { FaUser } from 'react-icons/fa6'
+
+function FloatingIcon() {
+  const location = useLocation();
+
+  // Show Floating WhatsApp on all pages except those under "/dashboard"
+  if (location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/chat')) {
+    return null;
+  }
+
+  return (
+    <FloatingWhatsApp
+      phoneNumber="+923440751588"
+      accountName={'Osama Akram'} 
+      allowClickAway={true}
+      notification={true}
+      notificationSound={true}
+      notificationDelay={60000}
+      className="custom-color"
+      styles={{ bottom: '20px', right: '20px' }}
+    />
+  );
+}
 
 function App() {
   return (
@@ -28,20 +47,12 @@ function App() {
         <Route path="/dashboard/*" element={<Dashboard />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <FloatingWhatsApp
-        phoneNumber="+923440751588"
-        accountName={'Osama Akram'} 
-        allowClickAway={true}
-        notification={true}
-        notificationSound={true}
-        notificationDelay={60000}
-        className="custom-color"
-        styles={{ bottom: '20px', right: '20px' }}
-      />
+
+      <FloatingIcon />
 
       <ToastContainer />
     </Router>
-  )
+  );
 }
 
-export default App
+export default App;

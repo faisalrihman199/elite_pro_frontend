@@ -3,15 +3,17 @@ import { BiCheck, BiCheckDouble } from 'react-icons/bi';
 import { FaDownload } from 'react-icons/fa';
 import { IoIosArrowDown } from 'react-icons/io';
 import { MdOutlineDownloading } from 'react-icons/md';
+import { useAPI } from '../../Context/APIContext';
 
-const OneMessage = ({ message, handleReply,lastMessage }) => {
+const OneMessage = ({ message, handleReply }) => {
     
     const [showMenu, setShowMenu] = useState(false);
     const [hovered, setHovered] = useState(false);
     const [menuAbove, setMenuAbove] = useState(false);
+    const {getUser}=useAPI();
     const menuRef = useRef(null);
     const messageRef = useRef(null);
-    const isYou = message.sender === 'You';
+    const isYou = message.senderId === getUser()?.id;
     const side = isYou ? 'justify-end' : 'justify-start';
 
     const bubbleColor = isYou ? '#153795' : 'white';

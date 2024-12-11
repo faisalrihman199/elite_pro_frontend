@@ -243,9 +243,12 @@ const OneEmployee = () => {
                         loading === 2 ?
                             <LoadingSkeleton />
                             :
+                            tableData.length> 0 ?
                             <div className="my-1">
                                 <TableView rows={tableData} headNames={headNames} handleDelete={handleDelete} handleEdit={handleEdit} />
                             </div>
+                            :
+                            <div>No Modules found for this Employee</div>
 
                     }
                 </div>

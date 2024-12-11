@@ -8,7 +8,9 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faDownload, faEdit, faEye, faFile, faFileAlt, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { FaDownload } from 'react-icons/fa6';
+import { useAPI } from '../../../Context/APIContext';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -26,6 +28,20 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 const StyledTableRow = styled(TableRow)(({ theme }) => ({}));
 
 export default function CustomizedTables({ rows, headNames, handleDelete, handleEdit }) {
+  const isModule = headNames.includes('Module Name');
+  const handleDownload = (path) => {
+    const link = document.createElement('a');
+    link.href = path;
+    link.download = path.split('/').pop();  // Use the file name from the URL
+    document.body.appendChild(link);  // Append the link to the body
+    link.click();  // Trigger the click event to start the download
+    document.body.removeChild(link);  // Clean up the DOM after the download is triggered
+  };
+  
+  
+  
+  const {getFilesPath}=useAPI();
+
 
   return (
     <TableContainer component={Paper} className='p-4' style={{ boxShadow: 'none' }}>
@@ -66,6 +82,21 @@ export default function CustomizedTables({ rows, headNames, handleDelete, handle
                   className="text-red-500 cursor-pointer"
                   onClick={() => handleDelete(row.id)} // Log the ID when delete is clicked
                 />
+                {
+                  isModule &&
+                  <>
+                    
+                    <FontAwesomeIcon
+                      icon={faFileAlt}
+                      className="text-gray-500 cursor-pointer ms-2"
+                      onClick={() => {
+                        const filePath = getFilesPath(row.completionFile || row.requirementFile);
+                        handleDownload(filePath)
+                      }}
+                    />  
+                  </>
+                }
+
               </StyledTableCell>
             </StyledTableRow>
           ))}

@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { IoIosArrowDown } from 'react-icons/io';
 import { useAPI } from '../../Context/APIContext';
+import { useSocket } from '../../Context/SocketContext';
 
-const ShowChats = ({ chats, activeTab }) => {
+const ShowChats = ({ chats, activeTab,onChatSelect }) => {
   
   
   const [selected, setSelected] = useState(null);
@@ -58,6 +59,11 @@ const ShowChats = ({ chats, activeTab }) => {
     setShowMenu(true);
     setSelected(chatId);
   };
+  const hanldeShowConversation=(chat)=>{
+    console.log("Please Show Conversation :", chat);
+    onChatSelect(chat);
+  }
+
 
   const handleClickOutside = (e) => {
     if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -80,13 +86,14 @@ const ShowChats = ({ chats, activeTab }) => {
           <div
             key={chat.id}
             onContextMenu={(e) => handleContextMenu(e, chat.id)} 
+            onClick={() => {hanldeShowConversation(chat)}}
             onMouseEnter={() => setHoveredChat(chat.id)}
             onMouseLeave={() => setHoveredChat(null)}
             className={`p-3 m-2 rounded hover:bg-gray-200 cursor-pointer flex items-center ${selected === chat.id ? 'bg-gray-200' : ''}`}
           >
             
             <img
-              src={chat?.otherUser?.profile_image ?getFilesPath(chat?.otherUser?.profile_image) :`https://randomuser.me/api/portraits/men/${index}.jpg`}
+              src={chat?.otherUser?.profile_image ?getFilesPath(chat?.otherUser?.profile_image) :`https://randomuser.me/api/portraits/men/9.jpg`}
               alt="User Avatar"
               className="mr-2 h-12 w-12 rounded-full object-cover"
             />

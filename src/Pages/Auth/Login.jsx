@@ -26,7 +26,8 @@ function Login() {
       .then((res) => {
         if (res.success) {
           localStorage.setItem('user', JSON.stringify(res.data));
-          navigate('/dashboard');
+          
+            res.data.role==='admin'?navigate('/dashboard'):navigate('/dashboard/one_employee')
         }
         else{
           toast.error(res.message);

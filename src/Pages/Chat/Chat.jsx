@@ -19,14 +19,20 @@ const Chat = () => {
 //     { id: 9, name: 'Ahsan Malik', lastMessage: 'Are we still on for tomorrow?', time: '10/09/2024' },
 //     { id: 10, name: 'Tariq Hussain', lastMessage: 'Let’s finalize the details.', time: '10/08/2024' },
 // ]);
+const [newChat,setNewChat]=useState({});
 
 
 const [selectedChat, setSelectedChat] = useState(chats[0]);
 
-
+  useEffect(()=>{
+    console.log("New Chat is :", newChat);
+    
+  },[newChat])
   // Handle chat selection
   const handleChatSelect = (chat) => {
     setSelectedChat(chat);
+
+    setNewChat(null);
   };
 
   // Handle chat deletion
@@ -48,13 +54,14 @@ const [selectedChat, setSelectedChat] = useState(chats[0]);
           chats={chats}
           onChatSelect={handleChatSelect}
           onChatDelete={handleChatDelete} 
+          setNewChat={setNewChat}
         />
       </div>
 
       {/* ChatArea component */}
-      {selectedChat && (
+      {(selectedChat || newChat) && (
         <div className="flex-1">
-          <ChatArea chat={selectedChat} onBack={() => setSelectedChat(null)} />
+          <ChatArea chat={newChat || selectedChat}  onBack={() => setSelectedChat(null)} />
         </div>
       )}
     </div>

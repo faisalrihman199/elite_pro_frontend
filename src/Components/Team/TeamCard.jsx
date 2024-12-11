@@ -11,7 +11,6 @@ const TeamCard = ({ team }) => {
     : [];
     const navigate=useNavigate();
     const onShowMore=(team)=>{
-        
         navigate('/dashboard/one_team', {state:team.id});
     }
     return (

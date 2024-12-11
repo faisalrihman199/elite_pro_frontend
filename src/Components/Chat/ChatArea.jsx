@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { FaMicrophone, FaStop, FaUser, FaCheck, FaRegCheckCircle, FaTrashAlt, FaPaperPlane, FaReply } from 'react-icons/fa';
 import { TiAttachment } from 'react-icons/ti';
 import Wa_Bg from "../../assets/Chat/wa_bg.jpg";
@@ -7,14 +7,40 @@ import { IoSend } from 'react-icons/io5';
 import { FiMic } from 'react-icons/fi';
 import OneMessage from './OneMessage';
 import { RxCrossCircled } from 'react-icons/rx';
+import { useAPI } from '../../Context/APIContext';
+import { useSocket } from '../../Context/SocketContext';
 const ChatArea = ({ chat, onBack }) => {
-  const [dummyMessages, setDummyMessages] = useState([
-    { sender: 'You', message: 'I’m good! How about you?I’m good! How about you?I’m good! How about you?I’m good! How about you?I’m good! How about you?', time: '10:05 AM', status: 'sent' },
-    { sender: 'You', message: 'I’m good! How about you?', time: '10:05 AM', status: 'delivered' },
-    { sender: 'John Doe', message: 'Hey, how are you?Hey, how are you?Hey, how are you?Hey, how are you?Hey, how are you?Hey, how are you?Hey, how are you?', time: '10:00 AM', status: 'read' },
-    { sender: 'You', message: 'I’m good! How about you?', time: '10:05 AM', status: 'read' },
-    { sender: 'John Doe', message: 'Doing well, thanks!', time: '10:10 AM', status: 'read' },
-  ]);
+  
+  const oldChat=chat?.otherUser;
+  const conversation=oldChat?chat.id:null;
+  const [otherUser,setOtherUser]=useState(oldChat?null:chat);
+  const [change,setChange]=useState(false);
+  
+  const [messages,setMessages]=useState([]);
+  
+  const {oneConversation,newMessageData}=useSocket();
+  useEffect(()=>{
+    console.log("New Message Received :", newMessageData);
+    
+  },[newMessageData])
+  useEffect(()=>{
+    if(conversation){
+      oneConversation(conversation)
+      .then((res)=>{
+        console.log("One Conversation is :", res);
+        setMessages(res?.data?.messages);
+        setOtherUser(res?.data?.otherUser)
+      })
+      .catch((err)=>{
+        console.log("One Conversation is error :", err);
+      })
+    }
+  },[conversation, change, newMessageData])
+
+  
+  
+  
+  const [dummyMessages, setDummyMessages] = useState([]);
 
   const [newMessage, setNewMessage] = useState('');
   const [replyingTo, setReplyingTo] = useState(null);
@@ -27,21 +53,19 @@ const ChatArea = ({ chat, onBack }) => {
 
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
-
+  const {getFilesPath,getUser}=useAPI();
+  const user=getUser();
+  const {sendMessage,activeConversation}=useSocket();
+  
+  
+  
   const handleSendMessage = () => {
     if (newMessage.trim()) {
-      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const newMessageObj = {
-        id: dummyMessages.length + 1,
-        sender: 'You',
-        message: newMessage,
-        time,
-        status: 'sent',
-        replyTo: replyingTo,
-      };
-      setDummyMessages([...dummyMessages, newMessageObj]);
+      console.log("Please send new Message :", newMessage);
+      sendMessage(newMessage,user?.id,otherUser?.userId);
       setNewMessage('');
       setReplyingTo(null);
+      setChange(!change)
     }
   };
   const handleReply = (message) => {
@@ -71,7 +95,7 @@ const ChatArea = ({ chat, onBack }) => {
       setReplyingTo(null);
     }
   };
-  const filteredMessages = dummyMessages.filter(
+  const filteredMessages = messages.filter(
     (message) =>
       (message.message.toLowerCase().includes(searchQuery.toLowerCase()))
       || message.fileName && (message.fileName.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -134,6 +158,12 @@ const ChatArea = ({ chat, onBack }) => {
 
 
   const getLastSeen = (lastSeen) => {
+    if (!lastSeen) {
+      return 'Unknown';
+    }
+    if (lastSeen==='Online'){
+      return 'Online';
+    }
     const now = new Date();
     const lastSeenDate = new Date(lastSeen);
     const diffInMs = now - lastSeenDate;
@@ -157,7 +187,7 @@ const ChatArea = ({ chat, onBack }) => {
   };
 
 
-  const lastSeenTime = new Date(Date.now() - 0 * 60 * 60 * 1000).toISOString();
+  
 
   return (
     <div className="flex flex-col h-full">
@@ -169,14 +199,14 @@ const ChatArea = ({ chat, onBack }) => {
           </button>
           <div className="font-bold flex items-center">
             <img
-              src={`https://randomuser.me/api/portraits/men/14.jpg`}
+              src={otherUser?.profile_image?getFilesPath(otherUser.profile_image) :`https://randomuser.me/api/portraits/men/9.jpg`}
               alt="User Avatar"
               className="mr-21 h-12 w-12 rounded-full object-cover me-3"
             />
             <div>
-              {chat.name}
+              {otherUser?.name}
               <br />
-              <span className="text-sm" style={{ fontSize: '13px', color: '#667781' }}>{getLastSeen(lastSeenTime)}</span> {/* Display last seen status */}
+              <span className="text-sm" style={{ fontSize: '13px', color: '#667781' }}>{getLastSeen(otherUser?.lastSeen)}</span> {/* Display last seen status */}
             </div>
           </div>
         </div>
@@ -246,8 +276,7 @@ const ChatArea = ({ chat, onBack }) => {
           <OneMessage
             message={msg}
             handleReply={handleReply}
-            lastMessage={
-              (filteredMessages[index + 1] && msg.sender !== filteredMessages[index + 1].sender)}
+            
           />))}
       </div>
 
