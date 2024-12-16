@@ -12,6 +12,9 @@ import { GoProject, GoTasklist } from 'react-icons/go';
 import { VscFileSubmodule } from 'react-icons/vsc';
 import { useAPI } from '../../../Context/APIContext';
 import LoadingSkeleton from '../../../Components/Dashboards/ChildDashboard/LoadingSkeleton';
+import { confirmAlert } from 'react-confirm-alert';
+import { toast } from 'react-toastify';
+import Pagination from '../../../Components/Dashboards/ChildDashboard/Pagination';
 
 
 const ModulesDashboard = () => {
@@ -21,9 +24,10 @@ const ModulesDashboard = () => {
     const [loading, setLoading] = useState(0);
     const [modulesData, setModulesdata] = useState({});
     const [tableData, settableData] = useState([]);
-    const { modulesDashboard,allModules } = useAPI();
-    const [page,setPage]=useState(1);
+    const { modulesDashboard, allModules, deleteModule, getUser } = useAPI();
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     useEffect(() => {
         setLoading(0)
         modulesDashboard(selectedOption)
@@ -32,88 +36,59 @@ const ModulesDashboard = () => {
             })
             .catch((err) => {
                 console.log("ERROR :", err);
-
             })
             .finally(() => {
                 setLoading(0)
             })
 
     }, [selectedOption]);
-    useEffect(()=>{
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+    useEffect(() => {
         setLoading(2)
-        allModules(page)
-        .then((res)=>{
-            settableData(res.data.modules);
-         })
-        .catch((err)=>{
-            console.log("Error :", err);
-        })
-        .finally(()=>{
-            setLoading(0)
-        })
-    },[page]);
-    const navigate=useNavigate();
-    const headNames = ['Sr No', 'Module Name', 'Deadline ', 'Action'];
+        allModules(currentPage)
+            .then((res) => {
+                settableData(res.data.modules);
+
+                setCurrentPage(res?.data?.currentPage)
+                setTotalPages(res?.data?.totalPages);
+            })
+            .catch((err) => {
+                console.log("Error :", err);
+            })
+            .finally(() => {
+                setLoading(0)
+            })
+    }, [currentPage, change]);
+    const navigate = useNavigate();
+    const headNames = ['Sr No', 'Module Name', 'Project Name', 'Deadline ', 'Action'];
     const handleEdit = (id) => {
         console.log("Edit this Module :", id);
         navigate('/dashboard/add_module', { state: { moduleId: id } });
     }
+
     const handleDelete = (id) => {
         console.log("Delete this Module :", id);
-
+        deleteModule(id)
+            .then((res) => {
+                if (res.success) {
+                    toast.success(res.message);
+                    setChange(!change);
+                }
+                else {
+                    toast.error(res.message);
+                }
+            })
+            .catch((err) => {
+                console.log("Error :", err);
+                toast.error(err?.response?.data?.message || "Error While Delete")
+            })
     }
-    const projects = [
-        {
-            "id": 6,
-            "module_name": "AI Integration",
-            "deadline": "2024-12-01"
-        },
-        {
-            "id": 175,
-            "module_name": "Blockchain Development",
-            "deadline": "2024-12-15"
-        },
-        {
-            "id": 160,
-            "module_name": "Cloud Computing Setup",
-            "deadline": "2024-11-30"
-        },
-        {
-            "id": 32,
-            "module_name": "Cybersecurity Framework",
-            "deadline": "2024-11-20"
-        },
-        {
-            "id": 33,
-            "module_name": "React Native App Development",
-            "deadline": "2024-12-05"
-        },
-        {
-            "id": 161,
-            "module_name": "IoT Platform Design",
-            "deadline": "2024-11-25"
-        },
-        {
-            "id": 47,
-            "module_name": "Data Analytics Tool",
-            "deadline": "2024-12-10"
-        },
-        {
-            "id": 166,
-            "module_name": "Machine Learning Model",
-            "deadline": "2024-12-12"
-        },
-        {
-            "id": 51,
-            "module_name": "Web Development Platform",
-            "deadline": "2024-11-28"
-        },
-        {
-            "id": 170,
-            "module_name": "Augmented Reality App",
-            "deadline": "2024-12-07"
-        }
-    ];
+    const fileteredData = tableData?.filter(module =>
+        module.name.toLowerCase().includes(searchValue.toLowerCase()) 
+    );
+
 
 
     return (
@@ -222,13 +197,16 @@ const ModulesDashboard = () => {
                     ?
                     <LoadingSkeleton />
                     :
-                    tableData?.length > 0 ?
+                    fileteredData?.length > 0 ?
                         <div className="my-1">
-                            <TableView rows={tableData} headNames={headNames} handleDelete={handleDelete} handleEdit={handleEdit} />
+                            <TableView rows={fileteredData} headNames={headNames} handleDelete={handleDelete} handleEdit={handleEdit} />
                         </div>
                         :
-                        <div>No Teams Found</div>
+                        <div>No Module Found</div>
             }
+            <div className="my-4">
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+            </div>
 
         </div>
     )

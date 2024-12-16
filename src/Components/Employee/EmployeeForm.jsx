@@ -6,7 +6,8 @@ import { toast } from "react-toastify";
 import { SyncLoader } from "react-spinners";
 import { useLocation } from "react-router-dom";
 
-function EmployeeForm({ profile }) {
+function EmployeeForm({ profile, employeeId }) {
+  
   const location = useLocation();
   const isSetting = location.pathname.includes("setting");
   const [showPassword, setShowPassword] = useState(false);
@@ -26,7 +27,7 @@ function EmployeeForm({ profile }) {
         email: profile.email || "",
         cnic: profile.employees?.[0]?.cnic || "",
         phone: profile.employees?.[0]?.phone || "",
-        dob: profile.employees?.[0]?.dateOfBirth || "",
+        dateOfBirth: profile.employees?.[0]?.dateOfBirth || "",
         department: profile.employees?.[0]?.department || "",
         designation: profile.employees?.[0]?.designation || "",
         address: profile.employees?.[0]?.address || "",
@@ -51,7 +52,7 @@ function EmployeeForm({ profile }) {
     // Decide whether to update the profile or add a new employee
     const apiCall = profile ? updateEmployeProfile : addEmployee;
 
-    apiCall(formData)
+    apiCall(formData, employeeId)
       .then((res) => {
         if (res.success) {
           toast.success(res.message);
@@ -271,8 +272,6 @@ function EmployeeForm({ profile }) {
                     <SyncLoader color="white" /> :
                     isSetting ? 'Update Profile' : "Add Employee"
                 }
-
-
               </button>
             </form>
           </div>

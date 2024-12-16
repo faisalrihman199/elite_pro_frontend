@@ -35,6 +35,7 @@ function TaskForm() {
           setValue('startDate', task.startDate ? new Date(task.startDate).toISOString().substring(0, 10) : '');
           setValue('endDate', task.endDate ? new Date(task.endDate).toISOString().substring(0, 10) : '');        
           setValue('teamId', task.Teams?.[0]?.id.toString() || '');
+          setValue('projectId',task?.projectId);
           // If needed, set other fields like projectId or progress
           setPrevData(task); // Store original task data for comparison if required
         })

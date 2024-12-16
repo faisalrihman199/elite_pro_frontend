@@ -29,11 +29,11 @@ const APIProvider = ({ children }) => {
     return {
       headers: {
         Authorization: `Bearer ${user?.token}`,
-
       }
     };
   };
   const getFilesPath=(path)=>{
+    
     return `${server.split("/api")[0]}/public/${path}`;
   }
 
@@ -83,6 +83,11 @@ const APIProvider = ({ children }) => {
     const response = await axios.get(url, getConfig());
     return response.data;
   };
+  const deleteEmployee=async (id) => {
+    let url=`${server}/employee/delete${id?`?employeeId=${id}`:''}`;  
+    const response = await axios.delete(url, getConfig());
+    return response.data;
+  };
 
 
    //Team
@@ -90,9 +95,9 @@ const APIProvider = ({ children }) => {
     const response = await axios.get(`${server}/dashboard/teamStats?period=${period}`, getConfig());
     return response.data;
   };
-   const addTeam = async (data) => {
-    console.log("Payload being sent:", data); // Debugging log
-    const response = await axios.post(`${server}/teams/create`, data, getConfig());
+   const addTeam = async (data, endPoint) => {
+    
+    const response = await axios.post(`${server}/teams/${endPoint}`, data, getConfig());
     return response.data;
   };
   const teamsList=async (page, limit) => {
@@ -110,9 +115,6 @@ const APIProvider = ({ children }) => {
     const response = await axios.get(`${server}/teams/teamDashBoard?id=${id}`, getConfig());
     return response.data;
   };
-
-  
-
 
   //Main Dashboard
   const mainDashboard = async (period) => {
@@ -138,6 +140,10 @@ const APIProvider = ({ children }) => {
     const response = await axios.get(`${server}/company/getProjects?page=${page}`, getConfig());
     return response.data;
   };
+  const deleteProject=async (id) => {
+    const response = await axios.delete(`${server}/project/delete?projectId=${id}`, getConfig());
+    return response.data;
+  };
 
 
 
@@ -156,6 +162,10 @@ const APIProvider = ({ children }) => {
   };
   const oneTask=async (id) => {
     const response = await axios.get(`${server}/company/getOneTask?taskId=${id}`, getConfig());
+    return response.data;
+  };
+  const deleteTask=async (id) => {
+    const response = await axios.delete(`${server}/company/deleteTask?taskId=${id}`, getConfig());
     return response.data;
   };
 
@@ -182,22 +192,33 @@ const APIProvider = ({ children }) => {
     const response = await axios.put(`${server}/modules/module-progress${id?`?id=${id}`:''}`, data, getConfig());
     return response.data;
   }
+  const deleteModule=async (id) => {
+    const response = await axios.delete(`${server}/modules/deleteModule?id=${id}`, getConfig());
+    return response.data;
+  };
 
 
 
   //Profile
-  const profileData=async()=>{
-    const response = await axios.get(`${server}/company/getUserData`, getConfig());
+  const profileData=async(id)=>{
+    let url=`${server}/company/getUserData`;
+    url+=id?`?id=${id}`:''
+    const response = await axios.get(url, getConfig());
     return response.data;
   }
-  const updateEmployeProfile=async(data)=>{
-    const response = await axios.put(`${server}/employee/updateProfile`,data, getConfig());
+  const updateEmployeProfile=async(data,id)=>{
+    let url=`${server}/employee/updateProfile`
+    url+=id?`?id=${id}`:'';
+    const response = await axios.put(url,data, getConfig());
     return response.data;
   }
   const updateCompanyProfile=async(data)=>{
     const response = await axios.put(`${server}/company/updateCompanyProfile`,data, getConfig());
     return response.data;
   }
+
+
+  
 
 
 
@@ -208,20 +229,20 @@ const APIProvider = ({ children }) => {
     login, signup, sendOtp, RegisterWithVerification,isAdmin, getUser,getConfig,verifyOtp,getFilesPath,profileData,updateCompanyProfile,
 
     //Employeees
-    addEmployee,employeesList,employeeDashboard,OneEmployee,updateEmployeProfile,
+    addEmployee,employeesList,employeeDashboard,OneEmployee,updateEmployeProfile,deleteEmployee,
 
     //Teams
     addTeam,teamsList,getOneTeam,teamDashboard,oneTeam,
 
     //Projects
-    projectsDashboard,addProject,oneProject,allProjects,
+    projectsDashboard,addProject,oneProject,allProjects,deleteProject,
 
     //Tasks
-    addTask,tasksDashboard,allTasks,oneTask,
+    addTask,tasksDashboard,allTasks,oneTask,deleteTask,
 
 
     //Modules
-    addModule,modulesDashboard,allModules,oneModule,updateModule,
+    addModule,modulesDashboard,allModules,oneModule,updateModule,deleteModule,
 
     //Main Dashboard
     mainDashboard,

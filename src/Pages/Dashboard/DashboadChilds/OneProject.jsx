@@ -209,7 +209,7 @@ const OneProject = () => {
                         </div>
                         <div className="flex items-center text-gray-600">
                             <FaUsers className="mr-2 text-xl" />
-                            <span>{teams.length} Teams</span>
+                            <span>{teams?.length} Teams</span>
                         </div>
                     </div>
                 </div>
@@ -224,56 +224,63 @@ const OneProject = () => {
                 </div>
 
                 {/* Tasks */}
-                <div className="mb-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center">
-                            <h3 className="text-xl font-semibold text-gray-700 ">Tasks</h3>
-                            <MdOutlineAddTask size={20} className='custom-color mx-1 cursor-pointer' style={{ fontWeight: 'bold' }} onClick={addTask} />
-                        </div>
-                        <div>
-                            {currentIndex + 1} / {tasks.length}
-                        </div>
-                    </div>
-                    <div className="relative">
-                        <div className="flex items-center justify-center">
-                            <button
-                                onClick={prevTask}
-                                disabled={currentIndex===0}
-                                className={`absolute left-0 `}
-                            >
-                                <FaArrowCircleLeft size={25} className='custom-color' />
-                            </button>
-                            <div className="w-full flex justify-center " >
-                                <TaskCard task={tasks[currentIndex]} />
+                {
+                    tasks &&
+                    <div className="mb-6">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center">
+                                <h3 className="text-xl font-semibold text-gray-700 ">Tasks</h3>
+                                <MdOutlineAddTask size={20} className='custom-color mx-1 cursor-pointer' style={{ fontWeight: 'bold' }} onClick={addTask} />
                             </div>
-                            <button
-                                onClick={nextTask}
-                                disabled={currentIndex===tasks.length-1}
-                                className="absolute right-0 "
-                            >
-                                <FaArrowCircleRight size={25} className='custom-color' />
-                            </button>
+                            <div>
+                                {currentIndex + 1} / {tasks.length}
+                            </div>
+                        </div>
+                        <div className="relative">
+                            <div className="flex items-center justify-center">
+                                <button
+                                    onClick={prevTask}
+                                    disabled={currentIndex===0}
+                                    className={`absolute left-0 `}
+                                >
+                                    <FaArrowCircleLeft size={25} className='custom-color' />
+                                </button>
+                                <div className="w-full flex justify-center " >
+                                    <TaskCard task={tasks[currentIndex]} />
+                                </div>
+                                <button
+                                    onClick={nextTask}
+                                    disabled={currentIndex===tasks.length-1}
+                                    className="absolute right-0 "
+                                >
+                                    <FaArrowCircleRight size={25} className='custom-color' />
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                }
 
                 {/* Teams */}
-                <div>
-                    <h3 className="text-xl font-semibold text-gray-700 mb-4">Teams Working on the Project</h3>
-                    {
-                        teams?.length>0?
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
-                            {teams.map((team, index) => (
-                                <TeamCard key={index} team={team} />
-                            ))}
-                        </div>
-                        :
-                        <div>No Active Team found on this project</div>
-                        
-                        
+                {
+                    teams &&
+                    <div>
+                        <h3 className="text-xl font-semibold text-gray-700 mb-4">Teams Working on the Project</h3>
+                        {
+                            teams?.length>0?
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
+                                {teams.map((team, index) => (
+                                    <TeamCard key={index} team={team} />
+                                ))}
+                            </div>
+                            :
+                            <div>No Active Team found on this project</div>
+                            
+                            
 
-                    }
-                </div>
+                        }
+                    </div>
+
+                }
             </div>
             :
             <div>Data Not Found</div>

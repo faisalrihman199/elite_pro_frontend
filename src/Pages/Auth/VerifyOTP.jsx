@@ -89,12 +89,15 @@ function VerifyOTP() {
       <div className="relative z-10 flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
         <Link
           to="#"
-          className="flex items-center mb-8 text-3xl font-semibold text-white"
+          className="flex items-center mb-0 text-3xl font-semibold text-white"
         >
           <img
             className="w-30 h-30 mr-3"
             src={SideIcon}
             alt="logo"
+            style={{
+              marginLeft:'-50px'
+            }}
           />
         </Link>
         <div className="w-full max-w-md bg-white rounded-lg shadow-lg md:mt-0 xl:p-10" style={{width:'600px', maxWidth:'90vw'}}>

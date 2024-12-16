@@ -46,18 +46,18 @@ const ShowChats = ({ chats, activeTab,onChatSelect }) => {
   }
   
   const handleContextMenu = (e, chatId, hv) => {
-    e.preventDefault();
-    const chatElement = e.currentTarget.getBoundingClientRect();
-    const windowHeight = window.innerHeight;
-    const above = windowHeight - chatElement.bottom < 150;
-    const y = above ? chatElement.top - 0 : chatElement.bottom + 5;
-    let left = chatElement.left;
-    if (hv) {
-      left = chatElement.left - 70;
-    }
-    setMenuPosition({ x: left, y, above });
-    setShowMenu(true);
-    setSelected(chatId);
+    // e.preventDefault();
+    // const chatElement = e.currentTarget.getBoundingClientRect();
+    // const windowHeight = window.innerHeight;
+    // const above = windowHeight - chatElement.bottom < 150;
+    // const y = above ? chatElement.top - 0 : chatElement.bottom + 5;
+    // let left = chatElement.left;
+    // if (hv) {
+    //   left = chatElement.left - 70;
+    // }
+    // setMenuPosition({ x: left, y, above });
+    // setShowMenu(true);
+    // setSelected(chatId);
   };
   const hanldeShowConversation=(chat)=>{
     console.log("Please Show Conversation :", chat);
@@ -81,7 +81,7 @@ const ShowChats = ({ chats, activeTab,onChatSelect }) => {
 
   return (
     <div>
-      {chats.length > 0 ? (
+      {chats && chats.length > 0 ? (
         chats.map((chat, index) => (
           <div
             key={chat.id}
@@ -93,7 +93,7 @@ const ShowChats = ({ chats, activeTab,onChatSelect }) => {
           >
             
             <img
-              src={chat?.otherUser?.profile_image ?getFilesPath(chat?.otherUser?.profile_image) :`https://randomuser.me/api/portraits/men/9.jpg`}
+              src={chat?.otherUser?.profile_image ?getFilesPath(chat?.otherUser?.profile_image) :`https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwGsNv23K5shKblMsKePA8o6M2kqBH39PZqA&s`}
               alt="User Avatar"
               className="mr-2 h-12 w-12 rounded-full object-cover"
             />
@@ -113,8 +113,21 @@ const ShowChats = ({ chats, activeTab,onChatSelect }) => {
                   )}
                 </div>
               </div>
-              <div className="text-sm text-gray-500">
-                {chat.lastMessage.length > 50 ? `${chat.lastMessage.slice(0, 47)}...` : chat.lastMessage}
+              <div className="flex justify-between">
+                <div className="text-sm text-gray-500">
+                  {chat?.lastMessage?.includes("https://res.cloudinary.com") ?
+                  chat?.lastMessage.split("/").pop()
+                  :
+                  chat?.lastMessage?.length > 50 ? `${chat?.lastMessage?.slice(0, 47)}...` : chat?.lastMessage}
+                </div>
+                {
+                  chat?.unreadMessagesCount > 0 &&
+
+                  <div className="bg-red-500 text-white rounded-full h-4 w-4 text-xs flex items-center justify-center">
+          {chat?.unreadMessagesCount}
+        </div>
+                }
+
               </div>
             </div>
           </div>

@@ -6,17 +6,27 @@ import { useSocket } from '../../Context/SocketContext';
 
 const Navbar = ({ userName }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    const [unreadNotifications, setUnreadNotifications] = useState(1); // Example notification count
+    const [unreadNotifications, setUnreadNotifications] = useState(0); // Example notification count
     const dropdownRef = useRef(null);
     const navigate=useNavigate();
     const {getUser}=useAPI();
-    const {disconnectSocket}=useSocket();
     const user=getUser();
+    const {disconnectSocket, conversations}=useSocket();
     const onLogout = () => {
         localStorage.removeItem('user')
         navigate('/');
         disconnectSocket();
-      }
+    }
+    useEffect(()=>{
+        console.log("Conversation is :", conversations);
+        let count=0;
+        for (let i=0;i<conversations.length;i++){
+            count+=conversations[i].unreadMessagesCount;
+        }
+        console.log("Counts is:", count);
+        
+        setUnreadNotifications(count);
+    },[conversations])
     const toggleDropdown = () => setDropdownOpen((prev) => !prev);
 
     const handleClickOutside = (event) => {
@@ -44,7 +54,9 @@ const Navbar = ({ userName }) => {
 
                 {/* Notification Icon */}
                 <div className="relative">
-                    <FaBell className="md:text-gray-600 w-6 h-6 cursor-pointer text-white" />
+                    <FaBell className="md:text-gray-600 w-6 h-6 cursor-pointer text-white" onClick={()=>{
+                        navigate('/chat')
+                    }} />
                     {unreadNotifications > 0 && (
                         <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
                             {unreadNotifications}

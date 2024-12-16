@@ -11,6 +11,8 @@ import { MdOutlineAddTask } from 'react-icons/md';
 import { GoProject } from 'react-icons/go';
 import LoadingSkeleton from '../../../Components/Dashboards/ChildDashboard/LoadingSkeleton';
 import { useAPI } from '../../../Context/APIContext';
+import { toast } from 'react-toastify';
+import Pagination from '../../../Components/Dashboards/ChildDashboard/Pagination';
 
 const ProjectsDashboard = () => {
     const [selectedOption, setSelectedOption] = useState('all');
@@ -18,11 +20,16 @@ const ProjectsDashboard = () => {
     const [change, setChange] = useState(false);
     const headNames = ['Sr No', 'Project Title','Deadline', 'Action '];
     const navigate = useNavigate();
-    const { projectsDashboard,allProjects } = useAPI();
+    const { projectsDashboard,allProjects,deleteProject } = useAPI();
     const [data, setData] = useState(null);
     const [tableProject, setTableProject]=useState([])
     const [loading, setLoading] = useState(0);
-    const [page,setPage]=useState(1);
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const fileteredData = tableProject?.filter(project =>
+        project.name.toLowerCase().includes(searchValue.toLowerCase()) 
+    );
     useEffect(() => {
         setLoading(1)
         projectsDashboard(selectedOption)
@@ -45,64 +52,34 @@ const ProjectsDashboard = () => {
     }
     const handleDelete = (id) => {
         console.log("Delete this project :", id);
+        deleteProject(id)
+        .then((res)=>{
+            if(res.success){
+                console.log("Project deleted successfully")
+                toast.success(res.message);
+
+                setChange(!change)
+            }
+            else{
+                console.log("Project not deleted")
+                toast.error(res.message)
+            }
+        })
+        .catch((err)=>{
+            console.log("Error is :", err)
+            toast.error(err.response.data.message || "Error while deletion")
+        })
     }
-    const projects = [
-        {
-            "id": 6,
-            "project_name": "AI Integration",
-            "deadline": "2024-12-01"
-        },
-        {
-            "id": 175,
-            "project_name": "Blockchain Development",
-            "deadline": "2024-12-15"
-        },
-        {
-            "id": 160,
-            "project_name": "Cloud Computing Setup",
-            "deadline": "2024-11-30"
-        },
-        {
-            "id": 32,
-            "project_name": "Cybersecurity Framework",
-            "deadline": "2024-11-20"
-        },
-        {
-            "id": 33,
-            "project_name": "React Native App Development",
-            "deadline": "2024-12-05"
-        },
-        {
-            "id": 161,
-            "project_name": "IoT Platform Design",
-            "deadline": "2024-11-25"
-        },
-        {
-            "id": 47,
-            "project_name": "Data Analytics Tool",
-            "deadline": "2024-12-10"
-        },
-        {
-            "id": 166,
-            "project_name": "Machine Learning Model",
-            "deadline": "2024-12-12"
-        },
-        {
-            "id": 51,
-            "project_name": "Web Development Platform",
-            "deadline": "2024-11-28"
-        },
-        {
-            "id": 170,
-            "project_name": "Augmented Reality App",
-            "deadline": "2024-12-07"
-        }
-    ];
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
     useEffect(()=>{
         setLoading(2)
-        allProjects(page)
+        allProjects(currentPage)
         .then((res)=>{
             setTableProject(res.data.projects) ;
+            setCurrentPage(res?.data?.currentPage)
+            setTotalPages(res?.data?.totalPages);
          })
         .catch((err)=>{
             console.log("Error :", err);
@@ -111,7 +88,7 @@ const ProjectsDashboard = () => {
         .finally(()=>{
             setLoading(0)
         })
-    },[page])
+    },[currentPage,change])
 
     
 
@@ -209,8 +186,16 @@ const ProjectsDashboard = () => {
                             </div>
                         </div>
                     </div>
+                    {
+                    fileteredData.length>0 ?
                     <div className="my-1">
-                        <TableView rows={tableProject} headNames={headNames} handleDelete={handleDelete} handleEdit={handleEdit} />
+                        <TableView rows={fileteredData} headNames={headNames} handleDelete={handleDelete} handleEdit={handleEdit} />
+                    </div>
+                    :
+                    <div>No Projects Found For Your Comany</div>
+                    }
+                    <div className="my-4">
+                        <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
                     </div>
                 </div>
                 :

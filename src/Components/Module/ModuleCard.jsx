@@ -9,11 +9,13 @@ import { useNavigate } from 'react-router-dom';
 const ModuleCard = ({ key, module }) => {
     const [isModalOpen, setIsModalOpen] = useState(false); // Modal visibility state
     const [loading, setLoading] = useState(false);
+    
     const [submissionData, setSubmissionData] = useState({
         completionPercentage: '',
         completionFile: null,
     });
-    const { updateModule } = useAPI();
+    const { updateModule,getUser } = useAPI();
+    const isAdmin=getUser()?.role==='admin'
     const navigate=useNavigate();
 
     const getProgressColor = (progress) => {
@@ -27,14 +29,15 @@ const ModuleCard = ({ key, module }) => {
         setSubmissionData((prev) => ({ ...prev, completionFile: event.target.files[0] }));
     };
 
-    const handleInputChange = (event) => {
-        setSubmissionData((prev) => ({ ...prev, completionPercentage: event.target.value }));
-    };
 
     const handleSubmit = () => {
         console.log('Submitted Data:', submissionData);
+        submissionData.completionPercentage='100';
+        let formData=new FormData();
+        formData.append('completionFile',submissionData.completionFile);
+        formData.append('completionPercentage',submissionData.completionPercentage);
         setLoading(true);
-        updateModule(submissionData, module.id)
+        updateModule(formData, module.id)
             .then((res) => {
                 console.log(res);
                 if (res.success) {
@@ -58,9 +61,13 @@ const ModuleCard = ({ key, module }) => {
         <div key={key} className="mb-4 p-4 border rounded-lg bg-gray-50 w-full">
             <div className="flex flex-wrap justify-between items-center mb-4">
                 <h5 className="text-lg flex items-center font-semibold text-gray-800">
-                    {module.name} <FaEdit className="mx-2 cursor-pointer" onClick={()=>{
-                        navigate('/dashboard/add_module', { state: { moduleId: module.id } });
-                    }} />
+                    {module.name} 
+                    {
+                        isAdmin && 
+                        <FaEdit className="mx-2 cursor-pointer" onClick={()=>{
+                            navigate('/dashboard/add_module', { state: { moduleId: module.id } });
+                        }} />
+                    }
                     <MdOutlineCloudDone
                         size={20}
                         color="green"
@@ -104,7 +111,7 @@ const ModuleCard = ({ key, module }) => {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
                         <h2 className="text-lg font-semibold mb-4">Module Submission</h2>
-                        <div className="mb-4">
+                        {/* <div className="mb-4">
                             <label className="block mb-2 font-medium text-gray-700">
                                 Completion Percentage
                             </label>
@@ -115,10 +122,10 @@ const ModuleCard = ({ key, module }) => {
                                 onChange={handleInputChange}
                                 placeholder="Enter percentage"
                             />
-                        </div>
+                        </div> */}
                         <div className="mb-4">
                             <label className="block mb-2 font-medium text-gray-700">
-                                Upload File
+                                Upload Completion File
                             </label>
                             <input
                                 type="file"

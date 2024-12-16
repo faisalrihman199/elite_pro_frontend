@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { styled } from '@mui/material/styles';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -11,6 +11,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload, faEdit, faEye, faFile, faFileAlt, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FaDownload } from 'react-icons/fa6';
 import { useAPI } from '../../../Context/APIContext';
+import { Route } from 'react-router-dom';
+import { confirmAlert } from 'react-confirm-alert';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -28,7 +30,10 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 const StyledTableRow = styled(TableRow)(({ theme }) => ({}));
 
 export default function CustomizedTables({ rows, headNames, handleDelete, handleEdit }) {
+
   const isModule = headNames.includes('Module Name');
+  const {getUser}=useAPI();
+  const isAdmin=getUser()?.role==="admin";
   const handleDownload = (path) => {
     const link = document.createElement('a');
     link.href = path;
@@ -37,6 +42,22 @@ export default function CustomizedTables({ rows, headNames, handleDelete, handle
     link.click();  // Trigger the click event to start the download
     document.body.removeChild(link);  // Clean up the DOM after the download is triggered
   };
+  const confirmDelete = (id) => {
+    confirmAlert({
+        title: 'Confirm Deletion',
+        message: 'Are You sure youe want to delete?',
+        buttons: [
+            {
+                label: 'Yes',
+                onClick: ()=>{handleDelete(id)}
+            },
+            {
+                label: 'No',
+                onClick: () => console.log(" Delete cancelled")
+            }
+        ]
+    });
+};
   
   
   
@@ -68,20 +89,30 @@ export default function CustomizedTables({ rows, headNames, handleDelete, handle
               {/* Accessing values dynamically based on keys */}
               <StyledTableCell className='font-light'>{index + 1}</StyledTableCell>
               <StyledTableCell className='font-light'>{row[Object.keys(row)[1]]}</StyledTableCell>
+              {
+                row.projectName &&
+              <StyledTableCell className='font-light'>{row.projectName}</StyledTableCell>
+              }
               <StyledTableCell className="font-light">
                 {new Date(row[Object.keys(row)[2]]).toLocaleDateString()}
               </StyledTableCell>
               <StyledTableCell className='font-light'>
-                <FontAwesomeIcon
-                  icon={faEdit}
-                  className="text-blue-500 cursor-pointer mr-2"
-                  onClick={() => handleEdit(row.id)} // Log the ID when edit is clicked
-                />
-                <FontAwesomeIcon
-                  icon={faTrash}
-                  className="text-red-500 cursor-pointer"
-                  onClick={() => handleDelete(row.id)} // Log the ID when delete is clicked
-                />
+                {
+                  isAdmin &&
+                  <>
+                  
+                    <FontAwesomeIcon
+                      icon={faEdit}
+                      className="text-blue-500 cursor-pointer mr-2"
+                      onClick={() => handleEdit(row.id)} // Log the ID when edit is clicked
+                    />
+                    <FontAwesomeIcon
+                      icon={faTrash}
+                      className="text-red-500 cursor-pointer"
+                      onClick={() => confirmDelete(row.id)} 
+                    />
+                  </>
+                }
                 {
                   isModule &&
                   <>

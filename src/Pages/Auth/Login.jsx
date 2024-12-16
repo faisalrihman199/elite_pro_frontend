@@ -9,19 +9,14 @@ import { useAPI } from "../../Context/APIContext";
 import { SyncLoader } from "react-spinners";
 
 function Login() {
-
   const [showPassword, setShowPassword] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm();
   const navigate = useNavigate();
   const { login } = useAPI();
   const [loading, setLoading] = useState(false);
-
   const onSubmit = (data) => {
     console.log(data);
-
     setLoading(true);
-
-
     login(data)
       .then((res) => {
         if (res.success) {
@@ -58,12 +53,15 @@ function Login() {
       <div className="relative z-10 flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
         <Link
           to="#"
-          className="flex items-center mb-8 text-3xl font-semibold text-white"
+          className="flex items-center mb-0 text-3xl font-semibold text-white"
         >
           <img
             className="w-30 h-30 mr-3"
             src={SideIcon}
             alt="logo"
+            style={{
+              marginLeft:'-50px'
+            }}
           />
         </Link>
         <div className="w-full max-w-lg bg-white rounded-lg shadow-lg md:mt-0 xl:p-10" style={{ width: '600px', maxWidth: '90vw' }}>

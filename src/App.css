@@ -28,3 +28,7 @@
     display: none !important;
   }
 }
+.react-confirm-alert-body h1 {
+  font-weight: bold; /* Makes the title bold */
+  color: #8b1900; /* Change to your desired color */
+}

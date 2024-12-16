@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FaUser, FaComments, FaStar, FaArchive, FaUsers, FaRegEdit } from 'react-icons/fa';
 import ShowChats from './ShowChats';
-import GroupModal from './GroupModal';
 import { BsChatSquareText, BsFilterCircle } from 'react-icons/bs';
 import { HiOutlineUsers } from 'react-icons/hi';
 import { GoArchive } from 'react-icons/go';
@@ -15,9 +14,14 @@ import { LuCamera } from 'react-icons/lu';
 import { TbMessage2 } from 'react-icons/tb';
 import { Link } from 'react-router-dom';
 import { useSocket } from '../../Context/SocketContext';
+import { toast } from 'react-toastify';
+import { SyncLoader } from 'react-spinners';
+import { useAPI } from '../../Context/APIContext';
 
 
-const AllChat = ({ chats, onChatSelect, onChatDelete,setNewChat }) => {
+const AllChat = ({ chats, onChatSelect,setNewChat,setGroup,goupsChat }) => {
+  console.log("Group Chats :", goupsChat);
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [groups, setGroups] = useState([]);
   const [activeTab, setActiveTab] = useState('Chats');
@@ -33,7 +37,28 @@ const AllChat = ({ chats, onChatSelect, onChatDelete,setNewChat }) => {
   const [groupIcon, setGroupIcon] = useState(null);
   const [searchInput, setSearchInput] = useState('');
   const [contacts, setContacts] = useState();
-  const {contactList}=useSocket();
+  const {contactList,createGroupChat}=useSocket();
+  const [loading,setLoading]=useState(false);
+  const {getUser}=useAPI();
+  const isAdmin=getUser()?.role==='admin';
+  const {conversations}=useSocket();
+  
+  
+  let filteredChats = (activeTab === 'Chats' ? conversations : goupsChat)?.filter(
+    (chat) =>
+      chat?.otherUser?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      chat?.lastMessage?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  
+  useEffect(()=>{
+    if(activeTab==='Groups'){
+      setGroup(true);
+    }
+    else{
+      setGroup(false);
+      }
+  },[activeTab,conversations])
+  
   useEffect(()=>{
     contactList()
     .then((res)=>{
@@ -43,8 +68,6 @@ const AllChat = ({ chats, onChatSelect, onChatDelete,setNewChat }) => {
       console.log(err)
     })
   },[])
-
-
 
   const handleCameraClick = () => {
     fileInputRef.current.click();
@@ -68,12 +91,9 @@ const AllChat = ({ chats, onChatSelect, onChatDelete,setNewChat }) => {
         : [...prevGroup, contactId]
     );
   };
-  const filteredChats = chats?.filter(
-    (chat) =>
-      activeTab === 'Chats' &&
-      (chat?.otherUser?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        chat?.lastMessage.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  
+  
+  
   const filteredContacts = contacts?.filter((contact) => {
     if (createGroup) {
       return newGroup.includes(contact.id);
@@ -85,10 +105,11 @@ const AllChat = ({ chats, onChatSelect, onChatDelete,setNewChat }) => {
 
   const menuRef = useRef(null);
 
+
   const handleChatMenu = () => {
-    
     setMenuVisible(!menuVisible);
   };
+
   // Close the menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -110,10 +131,33 @@ const AllChat = ({ chats, onChatSelect, onChatDelete,setNewChat }) => {
   }
   const handleCreateGroup = () => {
     console.log(`Please Create Group with followings :${groupName} :`, groupIcon, newGroup);
+    const data={
+        name:groupName,
+        employeeIds:newGroup
+    }
+    setLoading(true);
+    createGroupChat(data)
+    .then((res)=>{
+      console.log(res);
+      if(res.success){
+        setGrouping(false);
+        setCreate(false);
+        setMenuVisible(false);
+        setGroupName("");
+      setGroupIcon("");
+      setNewGroup([]);
+        toast.success(res.message);
+      }
+    })
+    .catch((err)=>{
+      console.log(err);
+      toast.error(err.response.data.message);
+    })
+    .finally(()=>{
+        setLoading(false);
+    })
 
   }
-  
- 
 
   return (
     <div className="flex w-full" style={{ backgroundColor: '#153795' }}>
@@ -126,8 +170,8 @@ const AllChat = ({ chats, onChatSelect, onChatDelete,setNewChat }) => {
         `}
       </style>
       <div className="p-4 w-16 flex flex-col items-center border-r border-gray-300">
-      <button title='Go to Dashboard' onClick={() => setActiveTab('dashboard')} className={`p-2 mb-4 ${activeTab === 'dashboard' ? 'active-link' : ''}`}>
-        <Link to={'/dashboard'} >
+      <button title='Go to Dashboard' onClick={() => setActiveTab('dashboard')} className={`p-2 mb-4 ${activeTab === 'dashboard' ? 'active-link' : '/dashboard/one_employee'}`}>
+        <Link to={isAdmin?`/dashboard`:'/dashboard/one_employee'} >
         <MdOutlineDashboardCustomize size={24} color='white' />
         
         </Link>
@@ -142,16 +186,16 @@ const AllChat = ({ chats, onChatSelect, onChatDelete,setNewChat }) => {
           <HiOutlineUserGroup size={24} color='white' />
         </button>
         
-        <button onClick={() => setActiveTab('Starred')} className={`p-2 mb-4 ${activeTab === 'Starred' ? 'active-link' : ''}`}>
+        {/* <button onClick={() => setActiveTab('Starred')} className={`p-2 mb-4 ${activeTab === 'Starred' ? 'active-link' : ''}`}>
           <IoIosStarOutline size={24} color='white' />
-        </button>
+        </button> */}
       </div>
 
       <div className="flex-1 bg-white flex flex-col relative border-r border-gray-300">
         <div className="p-3 px-5 bg-white flex justify-between items-center">
           <div className="font-bold text-2xl">{activeTab}</div>
           <div className="flex flex-row">
-            {activeTab === 'Chats' && (
+            {activeTab === 'Chats' && isAdmin && (
               <>
                 <FaRegEdit
                   className="cursor-pointer"
@@ -159,12 +203,12 @@ const AllChat = ({ chats, onChatSelect, onChatDelete,setNewChat }) => {
                   size={22}
                   onClick={handleChatMenu}
                 />
-                <BsFilterCircle
+                {/* <BsFilterCircle
                   color="#8d8d8d"
                   size={22}
                   className="mx-3 cursor-pointer"
                   onClick={() => setActiveTab('Unread Messages')} 
-                />
+                /> */}
                 {menuVisible && (
 
                   <div
@@ -218,7 +262,13 @@ const AllChat = ({ chats, onChatSelect, onChatDelete,setNewChat }) => {
                               onClick={handleCreateGroup}
 
                             >
-                              Create
+                              {
+                                loading ?
+                                <SyncLoader color="white" />
+                                :
+                                'Create'
+                              }
+                              
                             </span>
 
                         }
@@ -237,12 +287,12 @@ const AllChat = ({ chats, onChatSelect, onChatDelete,setNewChat }) => {
                               />
 
                               {/* Camera Icon */}
-                              <div
+                              {/* <div
                                 onClick={handleCameraClick}
                                 className={`absolute left-2 top-1/2 transform -translate-y-1/2 p-2 rounded-full cursor-pointer ${selectedImage ? 'bg-transparent' : 'bg-gray-200'}`}
                               >
                                 <LuCamera className="text-gray-300" size={25} />
-                              </div>
+                              </div> */}
 
                               {/* Hidden File Input */}
                               <input
@@ -309,7 +359,9 @@ const AllChat = ({ chats, onChatSelect, onChatDelete,setNewChat }) => {
                         </p>
                       </div>
                       <div className="my-2 bg-white rounded-md p-2 scroll-auto " style={{ maxHeight: '46vh', overflow: 'auto' }}>
+                      {filteredContacts && filteredContacts.length>0 &&
                         <Contacts newGroup={newGroup} setNewChat={setNewChat} contacts={filteredContacts} grouping={grouping} toggleContactInGroup={toggleContactInGroup} />
+                      }
                       </div>
                     </ul>
                   </div>
@@ -333,19 +385,12 @@ const AllChat = ({ chats, onChatSelect, onChatDelete,setNewChat }) => {
         <div className="flex-1 overflow-y-auto">
           {activeTab === 'Chats' && <ShowChats chats={filteredChats} activeTab={activeTab} onChatSelect={onChatSelect} />}
           {activeTab === 'Groups' && (
-            <ShowChats chats={groups.flatMap((group) => group.chats)} activeTab={activeTab} />
+            <ShowChats chats={filteredChats} activeTab={activeTab} onChatSelect={onChatSelect} />
           )}
          
-          {activeTab === 'Starred' && (
-            <ShowChats chats={groups.flatMap((group) => group.chats)} activeTab={activeTab} />
-          )}
-          {activeTab === 'Unread Messages' && (
-            <ShowChats chats={archivedChats} activeTab={activeTab} />
-          )}
         </div>
       </div>
     </div>
   );
 };
-
 export default AllChat;

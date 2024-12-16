@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { FaBriefcase, FaBuilding, FaTasks, FaUser, FaUsers } from 'react-icons/fa';
+import { FaBirthdayCake, FaBriefcase, FaBuilding, FaEdit, FaEnvelope, FaIdCard, FaMapMarkerAlt, FaPhone, FaTasks, FaUser, FaUsers } from 'react-icons/fa';
 import { MdOutlineAddTask, MdOutlineWorkHistory } from 'react-icons/md';
-import { GoProject } from 'react-icons/go';
+import { GoProject, GoShieldX } from 'react-icons/go';
 import RegularCard from '../../../Components/Dashboards/ChildDashboard/RegularCard';
 import ModuleCard from '../../../Components/Module/ModuleCard';
 import TableView from '../../../Components/Dashboards/ChildDashboard/TableView';
 import { useAPI } from '../../../Context/APIContext';
 import LoadingSkeleton from '../../../Components/Dashboards/ChildDashboard/LoadingSkeleton';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { confirmAlert } from 'react-confirm-alert'; 
+
+import { IoShieldCheckmarkOutline } from 'react-icons/io5';
 
 const OneEmployee = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -15,14 +18,32 @@ const OneEmployee = () => {
     const [searchValue, setSearchValue] = useState("");
     const [change, setChange] = useState(false);
     const [loading, setLoading] = useState(1);
-    const { OneEmployee, getFilesPath,allModules } = useAPI();
+    const { OneEmployee, getFilesPath, allModules,getUser } = useAPI();
     const [data, setData] = useState({});
     const [employeeInfo, setEmployeeInfo] = useState({});
-    const [modules,setRunningModule]=useState([]);
-    const [tableData,setTableData]=useState([]);
-    const location=useLocation();
+    const [modules, setRunningModule] = useState([]);
+    const [tableData, setTableData] = useState([]);
+    const location = useLocation();
     const employeeId = location.state;
-    const [page,setPage]=useState(1);
+    const [page, setPage] = useState(1);
+    const isAdmin=getUser()?.role==='admin';
+
+    const confirmManager = () => {
+        confirmAlert({
+            title: 'Confirm Manager Role Allocation',
+            message: 'Are You sure you want to allocate this employee to a manager role with complete access?',
+            buttons: [
+                {
+                    label: 'Yes',
+                    onClick: handleDelete
+                },
+                {
+                    label: 'No',
+                    onClick: () => console.log("Manager Allocation cancelled")
+                }
+            ]
+        });
+    };
 
     useEffect(() => {
         setLoading(1);
@@ -30,7 +51,6 @@ const OneEmployee = () => {
             .then((res) => {
                 setData(res?.data);
                 setEmployeeInfo(res?.data?.employee);
-
                 setRunningModule(res?.data?.runningModules);
 
             })
@@ -42,22 +62,22 @@ const OneEmployee = () => {
                 setLoading(0);
             })
     }, []);
-    useEffect(()=>{
+    useEffect(() => {
         setLoading(2)
-        allModules(page,employeeId)
-        .then((res)=>{
-            setTableData(res.data.modules);
-         })
-        .catch((err)=>{
-            console.log("Error :", err);
-        })
-        .finally(()=>{
-            setLoading(0)
-        })
-    },[page]);
+        allModules(page, employeeId)
+            .then((res) => {
+                setTableData(res.data.modules);
+            })
+            .catch((err) => {
+                console.log("Error :", err);
+            })
+            .finally(() => {
+                setLoading(0)
+            })
+    }, [page]);
 
-    const navigate=useNavigate();
-    const headNames = ['Sr No', 'Module Name', 'Deadline ', 'Action'];
+    const navigate = useNavigate();
+    const headNames = ['Sr No', 'Module Name','Project Name', 'Deadline ', 'Action'];
     const handleEdit = (id) => {
         console.log("Edit this Module :", id);
         navigate('/dashboard/add_module', { state: { moduleId: id } });
@@ -66,61 +86,6 @@ const OneEmployee = () => {
         console.log("Delete this Module :", id);
 
     }
-    const projects = [
-        {
-            "id": 6,
-            "module_name": "AI Integration",
-            "deadline": "2024-12-01"
-        },
-        {
-            "id": 175,
-            "module_name": "Blockchain Development",
-            "deadline": "2024-12-15"
-        },
-        {
-            "id": 160,
-            "module_name": "Cloud Computing Setup",
-            "deadline": "2024-11-30"
-        },
-        {
-            "id": 32,
-            "module_name": "Cybersecurity Framework",
-            "deadline": "2024-11-20"
-        },
-        {
-            "id": 33,
-            "module_name": "React Native App Development",
-            "deadline": "2024-12-05"
-        },
-        {
-            "id": 161,
-            "module_name": "IoT Platform Design",
-            "deadline": "2024-11-25"
-        },
-        {
-            "id": 47,
-            "module_name": "Data Analytics Tool",
-            "deadline": "2024-12-10"
-        },
-        {
-            "id": 166,
-            "module_name": "Machine Learning Model",
-            "deadline": "2024-12-12"
-        },
-        {
-            "id": 51,
-            "module_name": "Web Development Platform",
-            "deadline": "2024-11-28"
-        },
-        {
-            "id": 170,
-            "module_name": "Augmented Reality App",
-            "deadline": "2024-12-07"
-        }
-    ];
-    
-
-    
 
     return (
         loading === 1 ?
@@ -130,18 +95,31 @@ const OneEmployee = () => {
                 {/* Employee Info Sidebar */}
                 {
                     employeeInfo &&
-                    <div className="w-full lg:w-1/4 h-auto lg:h-full bg-white shadow-lg rounded-lg p-6 flex flex-col items-center">
+                    <div className="w-full lg:w-1/4 h-auto lg:h-full bg-white shadow-lg rounded-lg p-6 flex flex-col items-start">
                         {/* Profile Image */}
-                        <img
-                            src={getFilesPath(employeeInfo?.profile_image) || 'https://randomuser.me/api/portraits/men/1.jpg'}
-                            alt={`${employeeInfo.firstName}'s profile`}
-                            className="w-32 h-32 rounded-full mb-4 border-4 border-primary-500"
-                        />
+                        <div className="flex justify-center items-center w-full flex-col">
+
+                            <img
+                                src={getFilesPath(employeeInfo?.profile_image) || 'https://randomuser.me/api/portraits/men/1.jpg'}
+                                alt={`${employeeInfo.firstName}'s profile`}
+                                className="w-32 h-32 rounded-full mb-4 border-4 border-primary-500"
+                            />
+                        <h2 className="text-2xl font-semibold mb-2 flex items-center">
+                            {employeeInfo?.firstName} {employeeInfo?.lastName}
+                            {
+                                isAdmin &&
+                                <>
+                                
+                                    <FaEdit className='mx-2 cursor-pointer' size={20} color='blue' onClick={()=>{
+                                        navigate('/dashboard/setting', { state: { employeeId: employeeInfo.id } });
+                                    }} />
+                                    <GoShieldX className='cursor-pointer' size={20} color='red' onClick={confirmManager} />
+                                </>
+                            }
+                        </h2>
+                        </div>
 
                         {/* Name */}
-                        <h2 className="text-2xl font-semibold text-center mb-2">
-                            {employeeInfo?.firstName} {employeeInfo?.lastName}
-                        </h2>
 
                         {/* Designation with Icon */}
                         <div className="flex items-center text-gray-600 mb-2">
@@ -153,6 +131,37 @@ const OneEmployee = () => {
                         <div className="flex items-center text-gray-500 mb-2">
                             <FaBuilding className="mr-2 text-primary-500" />
                             <p>{employeeInfo?.department}</p>
+                        </div>
+
+                        {/* Email */}
+                        <div className="flex items-center text-gray-600 mb-2">
+                            <FaEnvelope className="mr-2 text-primary-500" />
+                            <p>{employeeInfo?.user?.email}</p>
+                        </div>
+
+                        {/* CNIC */}
+                        <div className="flex items-center text-gray-600 mb-2">
+                            <FaIdCard className="mr-2 text-primary-500" />
+                            <p>{employeeInfo?.cnic}</p>
+                        </div>
+
+                        
+
+                        {/* Date of Birth */}
+                        <div className="flex items-center text-gray-600 mb-2">
+                            <FaBirthdayCake className="mr-2 text-primary-500" />
+                            <p>{employeeInfo?.dateOfBirth}</p>
+                        </div>
+
+                        {/* Phone */}
+                        <div className="flex items-center text-gray-600 mb-2">
+                            <FaPhone className="mr-2 text-primary-500" />
+                            <p>{employeeInfo?.phone}</p>
+                        </div>
+                        {/* Address */}
+                        <div className="flex items-center text-gray-600 mb-2">
+                            <FaMapMarkerAlt className="mr-2 text-primary-500" />
+                            <p>{employeeInfo?.address}</p>
                         </div>
 
                         {/* Teams with Icons */}
@@ -171,6 +180,8 @@ const OneEmployee = () => {
                             </ul>
                         </div>
                     </div>
+
+
 
                 }
 
@@ -204,51 +215,54 @@ const OneEmployee = () => {
                         />
                     </div>
 
-                        { modules.length>0 &&
-                        
-                            <div className="mt-4">
-                                <div className="flex justify-between">
-                                    <div className="flex items-center mb-4">
-                                        <h3 className="text-xl font-semibold text-gray-700 ">Modules</h3>
+                    {modules.length > 0 &&
+
+                        <div className="mt-4">
+                            <div className="flex justify-between">
+                                <div className="flex items-center mb-4">
+                                    <h3 className="text-xl font-semibold text-gray-700 ">Modules</h3>
+                                    {
+                                        isAdmin &&
                                         <MdOutlineAddTask size={20} className='custom-color mx-1 cursor-pointer' style={{ fontWeight: 'bold' }} />
+                                    }
+                                </div>
+                                <div>
+                                    {currentIndex + 1} / {modules.length}
+                                </div>
+
+                            </div>
+                            <div className="relative">
+                                <div className="flex items-center justify-center">
+                                    <div className="w-full flex justify-center px-5 ">
+                                        {modules && <ModuleCard module={modules[currentIndex]} />}
                                     </div>
-                                    <div>
-                                        {currentIndex + 1} / {modules.length}
-                                    </div>
+
 
                                 </div>
-                                <div className="relative">
-                                    <div className="flex items-center justify-center">
-                                        <div className="w-full flex justify-center px-5 ">
-                                        {modules && <ModuleCard module={modules[currentIndex]} /> }
-                                        </div>
-
-
-                                    </div>
-                                    <div className="absolute z-30 flex -translate-x-1/2 bottom-5 left-1/2 space-x-3 rtl:space-x-reverse ">
-                                        {modules.map((_, index) => (
-                                            <button
-                                                key={index}
-                                                type="button"
-                                                className={`w-3 mt-5 h-3 rounded-full ${currentIndex === index ? 'bg-site' : 'bg-gray-400'}`}
-                                                aria-current={currentIndex === index ? 'true' : 'false'}
-                                                onClick={() => setCurrentIndex(index)}
-                                            ></button>
-                                        ))}
-                                    </div>
+                                <div className="absolute z-30 flex -translate-x-1/2 bottom-5 left-1/2 space-x-3 rtl:space-x-reverse ">
+                                    {modules.map((_, index) => (
+                                        <button
+                                            key={index}
+                                            type="button"
+                                            className={`w-3 mt-5 h-3 rounded-full ${currentIndex === index ? 'bg-site' : 'bg-gray-400'}`}
+                                            aria-current={currentIndex === index ? 'true' : 'false'}
+                                            onClick={() => setCurrentIndex(index)}
+                                        ></button>
+                                    ))}
                                 </div>
                             </div>
-                        }
+                        </div>
+                    }
                     {
                         loading === 2 ?
                             <LoadingSkeleton />
                             :
-                            tableData.length> 0 ?
-                            <div className="my-1">
-                                <TableView rows={tableData} headNames={headNames} handleDelete={handleDelete} handleEdit={handleEdit} />
-                            </div>
-                            :
-                            <div>No Modules found for this Employee</div>
+                            tableData.length > 0 ?
+                                <div className="my-1">
+                                    <TableView rows={tableData} headNames={headNames} handleDelete={handleDelete} handleEdit={handleEdit} />
+                                </div>
+                                :
+                                <div>No Modules found for this Employee</div>
 
                     }
                 </div>

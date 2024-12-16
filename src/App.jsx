@@ -11,6 +11,7 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import ScrollToTop from './Components/ScrollTop'
 import { FloatingWhatsApp } from 'react-floating-whatsapp'
+import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
 
 function FloatingIcon() {
   const location = useLocation();
@@ -25,10 +26,7 @@ function FloatingIcon() {
       phoneNumber="+923440751588"
       accountName={'Osama Akram'} 
       allowClickAway={true}
-      notification={true}
-      notificationSound={true}
       notificationDelay={60000}
-      className="custom-color"
       styles={{ bottom: '20px', right: '20px' }}
     />
   );

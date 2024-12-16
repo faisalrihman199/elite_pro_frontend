@@ -12,6 +12,7 @@ import { GoProject } from 'react-icons/go';
 import TaskCard from '../../../Components/Task/TaskCard';
 import { useAPI } from '../../../Context/APIContext';
 import LoadingSkeleton from '../../../Components/Dashboards/ChildDashboard/LoadingSkeleton';
+import AddTeam from '../../../Components/Team/AddTeam';
 const OneTeam = () => {
     const [selectedOption, setSelectedOption] = useState('monthly');
     const location = useLocation();
@@ -22,6 +23,7 @@ const OneTeam = () => {
     const [teamData, setTeamData] = useState({});
     const [teamEmployees, setEmployees] = useState([]);
     const [tasks, setTasks] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false); // state to control the modal visibility
     
     const { oneTeam } = useAPI();
     useEffect(() => {
@@ -147,6 +149,9 @@ const OneTeam = () => {
     const prevTask = () => {
         setCurrentIndex((prevIndex) => (prevIndex - 1 + tasks.length) % tasks.length);
     };
+    const toggleModal = () => {
+        setIsModalOpen(!isModalOpen);
+    };
 
     return (
         <div className='p-8' >
@@ -160,7 +165,8 @@ const OneTeam = () => {
                             <div className="flex justify-between">
 
                                 <h1 className='text-2xl font-semibold my-2'>Team Name</h1>
-                                <button className=' bg-site focus:ring-4 focus:ring-4 focus:outline-none focus:ring-primary-300 focus:outline-none text-white font-medium rounded-lg text-sm px-5  text-center flex items-center' >
+                                <button className=' bg-site focus:ring-4 focus:ring-4 focus:outline-none focus:ring-primary-300 focus:outline-none text-white font-medium rounded-lg text-sm px-5  text-center flex items-center' 
+                                onClick={toggleModal}>
                                     <FaUserPlus size={25} style={{ fontWeight: 'bold' }} />
                                 </button>
                             </div>
@@ -261,6 +267,9 @@ const OneTeam = () => {
                         <div>No data found</div>
 
             }
+            {isModalOpen && (
+                <AddTeam toggleModal={toggleModal} update={teamData?.team} />
+            )}
 
         </div>
     )

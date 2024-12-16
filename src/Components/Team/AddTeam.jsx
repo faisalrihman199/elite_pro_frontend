@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form'; // Import useForm hook
 import { FadeLoader, SyncLoader } from 'react-spinners';
 import { toast } from 'react-toastify';
 
-const AddTeam = ({ toggleModal }) => {
+const AddTeam = ({ toggleModal , update }) => {
     const [newGroup, setNewGroup] = useState([]);
     const [employees, setEmployees] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
@@ -50,14 +50,27 @@ const AddTeam = ({ toggleModal }) => {
 
     // Handle the form submission
     const onSubmit = (data) => {
-        const teamData = {
-            name: data.teamName,
-            description: data.teamDescription,
-            members: newGroup,
-        };
+        
+        
+        let teamData={};
+        if(!update){
+            teamData= {
+                name: data.teamName,
+                description: data.teamDescription,
+                members: newGroup,
+            };
+        }
+        else{
+            teamData= {
+                employeeIds:newGroup,
+                teamId:update?.id
+                }
+        }
+        const endPoint=update?'addEmployees':'create';
+        
         console.log("Registering team with data:", teamData);
         setLoading(1);
-        addTeam(teamData)
+        addTeam(teamData,endPoint)
         .then((res)=>{
             if(res.success){
                 toast.success(res.message);
@@ -89,31 +102,38 @@ const AddTeam = ({ toggleModal }) => {
                     <FaTimes color='red' />
                 </button>
 
-                <h2 className="text-2xl font-semibold mb-4">Create New Team</h2>
+                <h2 className="text-2xl font-semibold mb-4">{update?'Update' :'Create New Team'} {update?.name}</h2>
 
                 {/* Team Name Input */}
                 <form onSubmit={handleSubmit(onSubmit)} className="w-full">
-                    <div className="relative w-full my-2 bg-white">
-                        <input
-                            type="text"
-                            placeholder="Team Name"
-                            {...register('teamName', { required: 'Team name is required' })}
-                            className="w-full pl-10 p-2 border rounded-lg focus:outline-none"
-                        />
-                        <AiOutlineTeam className="absolute left-2 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 " size={20} color="#8d8d8d" />
-                    </div>
-                    {errors.teamName && <p className="text-red-500 text-sm">{errors.teamName.message}</p>}
+                    {
+                        !update &&
+                        <>
+                            <div className="relative w-full my-2 bg-white">
+                                <input
+                                    type="text"
+                                    placeholder="Team Name"
+                                    {...register('teamName', !update && { required: 'Team name is required' })}
+                                    className="w-full pl-10 p-2 border rounded-lg focus:outline-none"
+                                />
+                                <AiOutlineTeam className="absolute left-2 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 " size={20} color="#8d8d8d" />
+                            </div>
+                            {errors.teamName && <p className="text-red-500 text-sm">{errors.teamName.message}</p>}
+        
+                            {/* Team Description Input */}
+                            <div className="relative w-full my-2 bg-white">
+                                <textarea
+                                    placeholder="Team Description"
+                                    {...register('teamDescription', !update && { required: 'Team description is required' })}
+                                    className="w-full p-2 border rounded-lg focus:outline-none"
+                                    rows="4"
+                                />
+                            </div>
+                            {errors.teamDescription && <p className="text-red-500 text-sm">{errors.teamDescription.message}</p>}
+                        
+                        </>
 
-                    {/* Team Description Input */}
-                    <div className="relative w-full my-2 bg-white">
-                        <textarea
-                            placeholder="Team Description"
-                            {...register('teamDescription', { required: 'Team description is required' })}
-                            className="w-full p-2 border rounded-lg focus:outline-none"
-                            rows="4"
-                        />
-                    </div>
-                    {errors.teamDescription && <p className="text-red-500 text-sm">{errors.teamDescription.message}</p>}
+                    }
 
                     {/* Search Input */}
                     <div className="relative w-full my-2 bg-white">
@@ -134,11 +154,14 @@ const AddTeam = ({ toggleModal }) => {
                             <FadeLoader />
                         </div>
                         :
+                        <div className="my-2 bg-white rounded-md p-2 scroll-auto " style={{ maxHeight: '46vh', overflow: 'auto' }} >
                         <EmployeeList
                         newGroup={newGroup}
                         allEmployees={filteredEmployees}
                         toggleContactInGroup={toggleContactInGroup}
                         />
+                        
+                        </div>
 
                     }
                     

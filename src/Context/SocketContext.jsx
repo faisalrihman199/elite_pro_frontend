@@ -16,20 +16,39 @@ const SocketProvider = ({ children }) => {
     const [messages, setMessages] = useState([]);
     const [newMessageData, setNewMessage] = useState({});
     const [newConversation, setNewConversation] = useState({});
-
+    const [change,setChange]=useState(false);
     // Chat
     const allConversations = async () => {
         const response = await axios.get(`${server}/chat/getConversations`, getConfig());
+        return response.data;
+    };
+    const groupChats = async () => {
+        const response = await axios.get(`${server}/chat/getGroupChats`, getConfig());
         return response.data;
     };
     const contactList = async () => {
         const response = await axios.get(`${server}/employee/contactList`, getConfig());
         return response.data;
     };
-    const oneConversation = async (id) => {
-        const response = await axios.get(`${server}/chat/getOneConversation/${id}`, getConfig());
+    const oneConversation = async (id, endPoint) => {
+        if (!endPoint) {
+            throw new Error('endPoint is required');
+        }
+        
+        const url = `${server}/chat/${endPoint}${endPoint.includes('Group') ? `?id=${id}` : `/${id}`}`;
+        return (await axios.get(url, getConfig())).data;
+    };
+    
+    
+    const createGroupChat = async (data) => {
+        const response = await axios.post(`${server}/company/adminCreateGroupChat`,data, getConfig());
         return response.data;
     };
+    const deleteMessage = async (id) => {
+        const response = await axios.delete(`${server}/employee/deleteMessage${id?`?id=${id}`:""}`, getConfig());
+        return response.data;
+    };
+    
 
     useEffect(() => {
         const fetchConversations = async () => {
@@ -44,11 +63,14 @@ const SocketProvider = ({ children }) => {
         if (user) {
             fetchConversations();
         }
-    }, [user]);
+    }, [user,newMessageData,change]);
+    useEffect(()=>{
+        console.log("New Message Received :", newMessageData);
+        setChange(!change);
+    },[newMessageData])
 
     useEffect(() => {
         let reconnectInterval = null;
-
         const connectSocket = () => {
             if (user) {
                 const wsUrl = `${wsServer}?token=${user.token}`;
@@ -63,7 +85,6 @@ const SocketProvider = ({ children }) => {
 
                 newSocket.onmessage = (message) => {
                     console.log('Message received:', message);
-                    
                     const msg = JSON.parse(message.data);
                     if (msg.action === 'receiveMessage') {
                         setNewMessage(msg.message);  // This should update the state
@@ -109,24 +130,43 @@ const SocketProvider = ({ children }) => {
     }, [user, wsServer]);
 
 
-    const sendMessage = (content, senderId, receiverId) => {
+
+    const sendMessage = (content, senderId, receiverId,file,isGroup) => {
         return new Promise((resolve, reject) => {
+            
             if (socket && isConnected) {
-                const messageAction = {
+                console.log("Sending Message");
+                
+                let messageAction = {
                     action: 'sendMessage',
-                    content: content,
                     senderId: senderId,
                     receiverId: receiverId,
+                    
                 };
+                if(content){
+                    messageAction.content = content;
+                }
+                if(file){
+                    messageAction.file = file;
+                }
+                if(isGroup){
+                    messageAction.groupChatId=receiverId
+                }
+
+
+
 
                 socket.send(JSON.stringify(messageAction));
                 console.log('Message sent:', messageAction);
+                setChange(!change)
 
                 // Handle acknowledgment from the server
                 socket.onmessage = (response) => {
                     const data = JSON.parse(response.data);
                     if (data) {
                         console.log('Acknowledgment received:', data);
+                        setChange(!change);
+                        setNewMessage(data);
                         resolve(data);
                     } else {
                         reject(new Error('Unexpected response format.'));
@@ -160,7 +200,7 @@ const SocketProvider = ({ children }) => {
         }
     };
     const provider = {
-        socket, isConnected, sendMessage, conversations, contactList, activeConversation, oneConversation, disconnectSocket, newMessageData
+        socket, isConnected, sendMessage, conversations, contactList, activeConversation, oneConversation, disconnectSocket, newMessageData,createGroupChat,groupChats,deleteMessage
     }
 
     return (

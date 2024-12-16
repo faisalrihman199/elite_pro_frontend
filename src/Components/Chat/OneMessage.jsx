@@ -4,8 +4,9 @@ import { FaDownload } from 'react-icons/fa';
 import { IoIosArrowDown } from 'react-icons/io';
 import { MdOutlineDownloading } from 'react-icons/md';
 import { useAPI } from '../../Context/APIContext';
+import { toast } from 'react-toastify';
 
-const OneMessage = ({ message, handleReply }) => {
+const OneMessage = ({ message, handleDelete }) => {
     
     const [showMenu, setShowMenu] = useState(false);
     const [hovered, setHovered] = useState(false);
@@ -53,10 +54,23 @@ const OneMessage = ({ message, handleReply }) => {
         }
     };
     
-
+    
+    const copyToClipboard = () => {
+        navigator.clipboard.writeText(message?.message).then(
+          () => {
+            toast.success("Message Copied to Clip Board")
+          },
+          (err) => {
+            console.error("Failed to copy text: ", err);
+          }
+        );
+      };
     const handleMenuAction = (action) => {
-        if (action === 'Reply') {
-            handleReply(message);
+        if (action === 'Delete') {
+            handleDelete(message);
+        }   
+        else if(action === 'Copy'){
+            copyToClipboard()
         }
         setShowMenu(false);
     };
@@ -73,7 +87,10 @@ const OneMessage = ({ message, handleReply }) => {
     }, []);
 
     const renderFile = () => {
-        const { fileName, fileUrl } = message;
+        
+        let fileName=message.message.split('/');
+        fileName=fileName[fileName.length-1]
+        const fileUrl=message.message;
 
         // Check if fileName and fileUrl are defined
         if (!fileName || !fileUrl) {
@@ -115,7 +132,7 @@ const OneMessage = ({ message, handleReply }) => {
         }
 
         // If it's a video
-        if (['mp4', 'avi', 'mov'].includes(fileExtension)) {
+        if (['mp4', 'avi', 'mov','webm'].includes(fileExtension)) {
             return (
                 <video controls style={{ maxWidth: '250px', maxHeight: '200px' }}>
                     <source src={fileUrl} type={`video/${fileExtension}`} />
@@ -172,16 +189,20 @@ const OneMessage = ({ message, handleReply }) => {
             )}
             <div
                 className="px-4 py-2 rounded-lg relative"
-                style={{ maxWidth: '70%', backgroundColor: bubbleColor, borderBottomLeftRadius: !isYou ? '0px' : '5px', fontSize: '14.2px', color: '#111B21', position: 'relative' }}
+                style={{ maxWidth: '70%',minWidth:'200px', backgroundColor: bubbleColor, borderBottomLeftRadius: !isYou ? '0px' : '5px', fontSize: '14.2px', color: '#111B21', position: 'relative' }}
             >
-                {message.replyTo && (
-                    <div className="flex items-center mb-2 p-2 bg-gray-100 rounded-lg px-5 cursor-pointer" style={{ borderLeft: '5px solid #06CF9C' }} onClick={()=>{scrollToMessage(message.replyTo.id)}} >
-                        <div>
-                            <p className="text-sm " style={{ color: '#06CF9C' }}>{message.replyTo.sender}</p>
-                            <p className="text-sm text-gray-500" style={{ width: '100%', maxHeight: '40px', overflow: 'hidden' }}>{message.replyTo.message}</p>
+                    {
+                        message?.employee &&
+                        <div className="flex items-center mb-2 py-2 bg-gray-100 rounded-lg px-1 cursor-pointer" style={{ borderLeft: '5px solid #06CF9C' }} >
+                            <div>
+                                <p className="text-sm " style={{ color: '#06CF9C' }}>
+                                    {message?.employee?.firstName} {message?.employee?.lastName}
+                                </p>
+                            
+                            </div>
                         </div>
-                    </div>
-                )}
+                    }
+                
                 {message.audio ? (
                     // Render audio player if there's a recorded audio
                     <audio controls style={{ width: '220px', maxHeight: '80vw' }}>
@@ -190,7 +211,9 @@ const OneMessage = ({ message, handleReply }) => {
                     </audio>
                 ) : (
                     // Render file or text message if no audio
-                    renderFile() || <div style={{color:textColor}} >{message.message}</div>
+                    message.message.includes("https://res.cloudinary.com")
+                    ?
+                    renderFile() : <div style={{color:textColor}} >{message.message}</div>
                 )}
 
                 <div className='flex items-center justify-between'  >
@@ -220,8 +243,7 @@ const OneMessage = ({ message, handleReply }) => {
                         style={{ width: '150px', maxHeight: '200px', overflowY: 'auto', marginTop: menuAbove ? '-10px' : '' }}
                     >
                         <ul className="text-sm">
-                            <li className="py-1 px-4 hover:bg-gray-200 cursor-pointer" onClick={() => handleMenuAction('Reply')}>Reply</li>
-                            <li className="py-1 px-4 hover:bg-gray-200 cursor-pointer" onClick={() => handleMenuAction('Forward')}>Forward</li>
+
                             <li className="py-1 px-4 hover:bg-gray-200 cursor-pointer" onClick={() => handleMenuAction('Copy')}>Copy</li>
                             <li className="py-1 px-4 hover:bg-gray-200 cursor-pointer" onClick={() => handleMenuAction('Delete')}>Delete</li>
                         </ul>
